@@ -5,5 +5,7 @@ import * as schema from './schema.ts'
 // Server-only: never import this from client code.
 const sqlite = new Database(process.env.DB_FILE_NAME ?? 'local.db')
 sqlite.pragma('journal_mode = WAL')
+// SQLite ignores foreign keys (and ON DELETE CASCADE) unless this is on.
+sqlite.pragma('foreign_keys = ON')
 
 export const db = drizzle(sqlite, { schema })

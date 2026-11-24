@@ -1,10 +1,124 @@
+import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { desc } from 'drizzle-orm'
+import { asc, count, desc, eq, getTableColumns } from 'drizzle-orm'
 import { db } from '#/db/index.ts'
-import { glitches } from '#/db/schema.ts'
-import type { Glitch } from '#/lib/glitch.ts'
+import { echoes, glitches, guardians } from '#/db/schema.ts'
+import { requireCommander, requireGuardian } from '#/lib/auth.server.ts'
+import {
+  ECHO_MAX_LENGTH,
+  isGlitchStatus,
+  type GlitchDetail,
+  type GlitchStatus,
+  type GlitchSummary,
+} from '#/lib/glitch.ts'
+
+function parseGlitchId(value: unknown) {
+  const id = Number(value)
+  if (!Number.isInteger(id) || id <= 0) throw new Error('Invalid glitch id.')
+  return id
+}
 
 export const getGlitches = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<Glitch[]> =>
-    db.select().from(glitches).orderBy(desc(glitches.timestamp)).all(),
+  async (): Promise<GlitchSummary[]> => {
+    requireGuardian()
+    return db
+      .select({ ...getTableColumns(glitches), echoCount: count(echoes.echoId) })
+      .from(glitches)
+      .leftJoin(echoes, eq(echoes.glitchId, glitches.glitchId))
+      .groupBy(glitches.glitchId)
+      .orderBy(desc(glitches.timestamp), desc(glitches.glitchId))
+      .all()
+  },
 )
+
+export const getGlitch = createServerFn({ method: 'GET' })
+  .validator((glitchId: number) => parseGlitchId(glitchId))
+  .handler(async ({ data: glitchId }): Promise<GlitchDetail> => {
+    requireGuardian()
+    const glitch = db.select().from(glitches).where(eq(glitches.glitchId, glitchId)).get()
+    if (!glitch) throw notFound()
+
+    const glitchEchoes = db
+      .select({
+        echoId: echoes.echoId,
+        description: echoes.description,
+        timestamp: echoes.timestamp,
+        guardian: { codename: guardians.codename, role: guardians.role },
+      })
+      .from(echoes)
+      .innerJoin(guardians, eq(guardians.guardianId, echoes.reportingGuardianId))
+      .where(eq(echoes.glitchId, glitchId))
+      .orderBy(asc(echoes.timestamp), asc(echoes.echoId))
+      .all()
+
+    return { ...glitch, echoes: glitchEchoes }
+  })
+
+type ReportEchoInput = { description: string; glitchId?: number }
+
+/** Without glitchId the echo opens a new glitch; with it, the echo is attached. */
+export const reportEcho = createServerFn({ method: 'POST' })
+  .validator((data: ReportEchoInput) => {
+    const description = String(data.description ?? '').trim()
+    if (!description) throw new Error('Describe what you sensed.')
+    if (description.length > ECHO_MAX_LENGTH) {
+      throw new Error(`Keep it under ${ECHO_MAX_LENGTH} characters.`)
+    }
+    const glitchId = data.glitchId == null ? undefined : parseGlitchId(data.glitchId)
+    return { description, glitchId }
+  })
+  .handler(async ({ data }): Promise<{ glitchId: number }> => {
+    // Reporter always comes from the session, never from the client.
+    const guardian = requireGuardian()
+    const timestamp = new Date().toISOString()
+
+    return db.transaction((tx) => {
+      let glitchId = data.glitchId
+      if (glitchId === undefined) {
+        glitchId = tx
+          .insert(glitches)
+          .values({ description: data.description, timestamp })
+          .returning({ glitchId: glitches.glitchId })
+          .get().glitchId
+      } else {
+        const exists = tx
+          .select({ glitchId: glitches.glitchId })
+          .from(glitches)
+          .where(eq(glitches.glitchId, glitchId))
+          .get()
+        if (!exists) throw new Error('That glitch no longer exists.')
+      }
+
+      tx.insert(echoes)
+        .values({
+          description: data.description,
+          timestamp,
+          reportingGuardianId: guardian.guardianId,
+          glitchId,
+        })
+        .run()
+
+      return { glitchId }
+    })
+  })
+
+export const updateGlitchStatus = createServerFn({ method: 'POST' })
+  .validator((data: { glitchId: number; status: GlitchStatus }) => {
+    if (!isGlitchStatus(data.status)) throw new Error('Unknown status.')
+    return { glitchId: parseGlitchId(data.glitchId), status: data.status }
+  })
+  .handler(async ({ data }) => {
+    requireCommander()
+    db.update(glitches)
+      .set({ status: data.status })
+      .where(eq(glitches.glitchId, data.glitchId))
+      .run()
+  })
+
+export const deleteGlitch = createServerFn({ method: 'POST' })
+  .validator((glitchId: number) => parseGlitchId(glitchId))
+  .handler(async ({ data: glitchId }) => {
+    requireCommander()
+    // Echoes go with it (ON DELETE CASCADE).
+    db.delete(glitches).where(eq(glitches.glitchId, glitchId)).run()
+  })
