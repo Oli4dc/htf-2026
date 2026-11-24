@@ -1,9 +1,10 @@
-// Hunters who play on the Roblox map. The Roblox server calls these through /api/roblox/join and
-// /api/roblox/claim with the grid key; players never reach them directly.
+// Hunters who play on the Roblox map. The Roblox server calls these through /api/roblox/join,
+// /api/roblox/claim and /api/roblox/fix with the grid key; players never reach them directly.
 import { eq, sql } from 'drizzle-orm'
 import { db } from '#/db/index.ts'
-import { guardians } from '#/db/schema.ts'
-import { claimBountyFor } from '#/lib/bounty.server.ts'
+import { glitches, guardians } from '#/db/schema.ts'
+import { claimBountyFor, setBountyStatus } from '#/lib/bounty.server.ts'
+import { FINAL_STATUS, travelProgress } from '#/lib/bounty.ts'
 
 export const HUNTER_NAME_MIN = 3
 export const HUNTER_NAME_MAX = 20
@@ -84,4 +85,30 @@ export function claimFromRoblox(robloxUserId: number, glitchId: number) {
     // claimBountyFor only throws player-facing rule messages.
     throw new PlayerError(err instanceof Error ? err.message : 'Could not take that bounty.')
   }
+}
+
+/**
+ * The Roblox player's hunter closes their bounty once they are on site: it goes to the final status and
+ * pays out, like reaching "Captured" in the app. A map minigame can later sit in front of this call.
+ */
+export function fixFromRoblox(robloxUserId: number, glitchId: number) {
+  const hunter = db
+    .select({ guardianId: guardians.guardianId })
+    .from(guardians)
+    .where(eq(guardians.robloxUserId, robloxUserId))
+    .get()
+  if (!hunter) throw new PlayerError('Pick a hunter name first.')
+  db.transaction((tx) => {
+    const bounty = tx
+      .select({ status: glitches.status, claimedBy: glitches.claimedByGuardianId, claimedAt: glitches.claimedAt })
+      .from(glitches)
+      .where(eq(glitches.glitchId, glitchId))
+      .get()
+    if (!bounty) throw new PlayerError('That bounty no longer exists.')
+    if (bounty.status === FINAL_STATUS) throw new PlayerError('This one is already fixed.')
+    if (bounty.claimedBy !== hunter.guardianId) throw new PlayerError('Only the hunter on this bounty can fix it.')
+    // Same travel clock as the map and the app, so nobody fixes a bounty they haven't reached yet.
+    if (travelProgress(bounty.claimedAt) < 1) throw new PlayerError("You're not there yet.")
+    setBountyStatus(glitchId, FINAL_STATUS, tx)
+  })
 }

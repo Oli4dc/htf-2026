@@ -17,6 +17,7 @@ import { Route as AuthedLeaderboardRouteImport } from './routes/_authed/leaderbo
 import { Route as AuthedRouletteRouteImport } from './routes/_authed/roulette'
 import { Route as AuthedGlitchesGlitchIdRouteImport } from './routes/_authed/glitches/$glitchId'
 import { Route as ApiRobloxClaimRouteImport } from './routes/api/roblox/claim'
+import { Route as ApiRobloxFixRouteImport } from './routes/api/roblox/fix'
 import { Route as ApiRobloxJoinRouteImport } from './routes/api/roblox/join'
 import { Route as ApiRobloxStateRouteImport } from './routes/api/roblox/state'
 
@@ -59,6 +60,11 @@ const ApiRobloxClaimRoute = ApiRobloxClaimRouteImport.update({
   path: '/api/roblox/claim',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiRobloxFixRoute = ApiRobloxFixRouteImport.update({
+  id: '/api/roblox/fix',
+  path: '/api/roblox/fix',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiRobloxJoinRoute = ApiRobloxJoinRouteImport.update({
   id: '/api/roblox/join',
   path: '/api/roblox/join',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/roulette': typeof AuthedRouletteRoute
   '/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
   '/api/roblox/claim': typeof ApiRobloxClaimRoute
+  '/api/roblox/fix': typeof ApiRobloxFixRoute
   '/api/roblox/join': typeof ApiRobloxJoinRoute
   '/api/roblox/state': typeof ApiRobloxStateRoute
 }
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthedIndexRoute
   '/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
   '/api/roblox/claim': typeof ApiRobloxClaimRoute
+  '/api/roblox/fix': typeof ApiRobloxFixRoute
   '/api/roblox/join': typeof ApiRobloxJoinRoute
   '/api/roblox/state': typeof ApiRobloxStateRoute
 }
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
   '/api/roblox/claim': typeof ApiRobloxClaimRoute
+  '/api/roblox/fix': typeof ApiRobloxFixRoute
   '/api/roblox/join': typeof ApiRobloxJoinRoute
   '/api/roblox/state': typeof ApiRobloxStateRoute
 }
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/roulette'
     | '/glitches/$glitchId'
     | '/api/roblox/claim'
+    | '/api/roblox/fix'
     | '/api/roblox/join'
     | '/api/roblox/state'
   fileRoutesByTo: FileRoutesByTo
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/'
     | '/glitches/$glitchId'
     | '/api/roblox/claim'
+    | '/api/roblox/fix'
     | '/api/roblox/join'
     | '/api/roblox/state'
   id:
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/_authed/'
     | '/_authed/glitches/$glitchId'
     | '/api/roblox/claim'
+    | '/api/roblox/fix'
     | '/api/roblox/join'
     | '/api/roblox/state'
   fileRoutesById: FileRoutesById
@@ -146,6 +158,7 @@ export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
   LoginRoute: typeof LoginRoute
   ApiRobloxClaimRoute: typeof ApiRobloxClaimRoute
+  ApiRobloxFixRoute: typeof ApiRobloxFixRoute
   ApiRobloxJoinRoute: typeof ApiRobloxJoinRoute
   ApiRobloxStateRoute: typeof ApiRobloxStateRoute
 }
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRobloxClaimRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/roblox/fix': {
+      id: '/api/roblox/fix'
+      path: '/api/roblox/fix'
+      fullPath: '/api/roblox/fix'
+      preLoaderRoute: typeof ApiRobloxFixRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/roblox/join': {
       id: '/api/roblox/join'
       path: '/api/roblox/join'
@@ -248,6 +268,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   LoginRoute: LoginRoute,
   ApiRobloxClaimRoute: ApiRobloxClaimRoute,
+  ApiRobloxFixRoute: ApiRobloxFixRoute,
   ApiRobloxJoinRoute: ApiRobloxJoinRoute,
   ApiRobloxStateRoute: ApiRobloxStateRoute,
 }
