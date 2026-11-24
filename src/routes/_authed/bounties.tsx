@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
-import { Plus, X } from 'lucide-react'
+import { Link, createFileRoute } from '@tanstack/react-router'
+import { ChevronDown, Crosshair, Plus, X } from 'lucide-react'
 import { BountyActions } from '#/components/bounty/BountyActions.tsx'
+import { BountyCard } from '#/components/bounty/BountyCard.tsx'
 import { PostBountyForm } from '#/components/bounty/PostBountyForm.tsx'
 import { PrisonBreakBanner } from '#/components/bounty/PrisonBreakBanner.tsx'
-import { WantedPoster } from '#/components/bounty/WantedPoster.tsx'
+import { TravelStatus } from '#/components/bounty/TravelStatus.tsx'
 import { getBounties } from '#/lib/bounties.functions.ts'
 import { FINAL_STATUS, activeHuntOf, type Bounty } from '#/lib/bounty.ts'
 import type { Guardian } from '#/lib/guardian.ts'
@@ -46,40 +47,58 @@ function BountyBoardPage() {
   const fugitivesAtLarge = bounties.filter(
     (b) => b.kind === 'FUGITIVE' && b.status !== FINAL_STATUS,
   ).length
-  const open = bounties.filter((b) => b.status !== FINAL_STATUS).length
-  // One active bounty per hunter: other posters show a locked Claim while this one is open.
+  // One active bounty per hunter: shown once at the top instead of a lock on every card.
   const activeHunt = activeHuntOf(bounties, guardian.guardianId)
+  const myHunt = activeHunt ? bounties.find((b) => b.glitchId === activeHunt.glitchId) : undefined
+
   const shown = bounties.filter((b) => matches(filter, b, guardian))
+  const open = shown.filter((b) => b.status !== FINAL_STATUS)
+  const closed = shown.filter((b) => b.status === FINAL_STATUS)
   const counts = Object.fromEntries(
     FILTERS.map((f) => [f.id, bounties.filter((b) => matches(f.id, b, guardian)).length]),
   ) as Record<FilterId, number>
 
-  return (
-    <div className="flex flex-col gap-6">
-      <PrisonBreakBanner atLarge={fugitivesAtLarge} />
+  const card = (bounty: Bounty) => (
+    <li key={bounty.glitchId}>
+      <BountyCard bounty={bounty} isMine={bounty.claimedByGuardianId === guardian.guardianId}>
+        <BountyActions bounty={bounty} guardian={guardian} activeHunt={activeHunt} compact />
+      </BountyCard>
+    </li>
+  )
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-heading text-4xl leading-none text-fg sm:text-5xl">Bounty board</h1>
-          <p className="mt-1 text-muted">
-            {open} open {open === 1 ? 'bounty' : 'bounties'}.{' '}
-            {isCommander
-              ? 'Post bounties and assign hunters from a bounty page.'
-              : 'Claim one, hunt it down, collect the shards.'}
-          </p>
-        </div>
+  return (
+    <div className="mx-auto flex max-w-6xl flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-heading text-4xl leading-none text-fg">Bounties</h1>
         {isCommander && (
           <button
             type="button"
             onClick={() => setPosting((p) => !p)}
             aria-expanded={posting}
-            className="inline-flex items-center gap-2 rounded-xl border border-copper px-4 py-2.5 font-semibold text-copper transition hover:bg-copper/10"
+            className="inline-flex items-center gap-2 rounded-xl border border-copper px-4 py-2 font-semibold text-copper transition hover:bg-copper/10"
           >
             {posting ? <X className="size-5" /> : <Plus className="size-5" />}
             {posting ? 'Close' : 'Post a bounty'}
           </button>
         )}
       </div>
+
+      <PrisonBreakBanner atLarge={fugitivesAtLarge} />
+
+      {myHunt && (
+        <Link
+          to="/glitches/$glitchId"
+          params={{ glitchId: String(myHunt.glitchId) }}
+          className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-copper/60 bg-copper/10 px-4 py-3 transition hover:bg-copper/15"
+        >
+          <span className="inline-flex items-center gap-2 text-fg">
+            <Crosshair aria-hidden="true" className="size-5 text-copper" />
+            Your hunt: <span className="font-semibold">{myHunt.targetName}</span>
+            <span className="text-sm text-muted">· one at a time, capture it to claim another</span>
+          </span>
+          <TravelStatus claimedAt={myHunt.claimedAt} location={myHunt.location} />
+        </Link>
+      )}
 
       {posting && (
         <section className="rounded-2xl border border-copper/60 bg-panel p-4 sm:p-6">
@@ -88,45 +107,45 @@ function BountyBoardPage() {
         </section>
       )}
 
-      <div role="group" aria-label="Filter bounties" className="flex flex-wrap gap-2">
+      {/* Tabs: one quiet row, the active one underlined. */}
+      <div role="group" aria-label="Filter bounties" className="flex gap-1 overflow-x-auto border-b border-line">
         {FILTERS.map((f) => (
           <button
             key={f.id}
             type="button"
             aria-pressed={filter === f.id}
             onClick={() => setFilter(f.id)}
-            className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors ${
+            className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
               filter === f.id
-                ? 'border-cyan bg-cyan/15 text-cyan'
-                : 'border-line text-muted hover:bg-subtle hover:text-fg'
+                ? 'border-cyan text-fg'
+                : 'border-transparent text-muted hover:text-fg'
             }`}
           >
-            {f.label} <span className="tabular-nums opacity-70">{counts[f.id]}</span>
+            {f.label} <span className="text-muted tabular-nums">{counts[f.id]}</span>
           </button>
         ))}
       </div>
 
-      {shown.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-line px-6 py-12 text-center text-lg text-muted">
+      {open.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-line px-6 py-10 text-center text-muted">
           {filter === 'mine'
             ? isCommander
-              ? 'Commanders do not hunt. Assign bounties to defenders instead.'
-              : 'You have not claimed a bounty yet. Pick one from Unclaimed.'
-            : 'No bounties here. Achrona is quiet, for now.'}
+              ? 'Commanders do not hunt. Assign bounties to defenders from a bounty page.'
+              : 'No open hunt. Pick one from Unclaimed.'
+            : 'No open bounties here. Achrona is quiet, for now.'}
         </p>
       ) : (
-        <ul className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
-          {shown.map((bounty) => (
-            <li key={bounty.glitchId}>
-              <WantedPoster
-                bounty={bounty}
-                isMine={bounty.claimedByGuardianId === guardian.guardianId}
-              >
-                <BountyActions bounty={bounty} guardian={guardian} activeHunt={activeHunt} />
-              </WantedPoster>
-            </li>
-          ))}
-        </ul>
+        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{open.map(card)}</ul>
+      )}
+
+      {closed.length > 0 && (
+        <details className="group">
+          <summary className="inline-flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-muted hover:text-fg [&::-webkit-details-marker]:hidden">
+            <ChevronDown aria-hidden="true" className="size-4 transition-transform group-open:rotate-180" />
+            Closed ({closed.length})
+          </summary>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{closed.map(card)}</ul>
+        </details>
       )}
     </div>
   )

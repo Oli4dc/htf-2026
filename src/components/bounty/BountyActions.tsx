@@ -20,6 +20,7 @@ export function BountyActions({
   guardian,
   showSighting = true,
   activeHunt = null,
+  compact = false,
 }: {
   bounty: Bounty
   guardian: Guardian
@@ -27,6 +28,11 @@ export function BountyActions({
   showSighting?: boolean
   /** The viewer's current hunt: a hunter holds one active bounty at a time. */
   activeHunt?: ActiveHunt | null
+  /**
+   * Board cards: at most one button (Claim, or Advance on your own hunt).
+   * No locked Claim and no sighting link; the board explains the lock once.
+   */
+  compact?: boolean
 }) {
   const router = useRouter()
   const claim = useServerFn(claimBounty)
@@ -40,11 +46,15 @@ export function BountyActions({
   const isHunter = bounty.claimedByGuardianId === guardian.guardianId
   const claimable = !resolved && guardian.role === 'defender' && bounty.claimedByGuardianId === null
   // Busy on another bounty: Claim stays visible but locked, with the reason next to it.
-  const busyWith = claimable && activeHunt && activeHunt.glitchId !== bounty.glitchId ? activeHunt : null
-  const canClaim = claimable && !busyWith
+  const lockedBy = claimable && activeHunt && activeHunt.glitchId !== bounty.glitchId ? activeHunt : null
+  const busyWith = compact ? null : lockedBy
+  const canClaim = claimable && !lockedBy
   const next = nextStatus(bounty.status)
-  const canAdvance = next !== null && (isHunter || isCommander)
-  const canRelease = isHunter && !resolved
+  // Commanders move bounties on the bounty page, not from every card.
+  const canAdvance = next !== null && (isHunter || (isCommander && !compact))
+  // Release lives on the bounty page; a card keeps one button.
+  const canRelease = isHunter && !resolved && !compact
+  if (compact) showSighting = false
 
   async function run(action: () => Promise<unknown>) {
     setBusy(true)
@@ -59,7 +69,7 @@ export function BountyActions({
     }
   }
 
-  if (!canClaim && !busyWith && !canAdvance && !showSighting) return null
+  if (!canClaim && !busyWith && !canAdvance && !canRelease && !showSighting) return null
 
   return (
     <div className="flex flex-col gap-2">
