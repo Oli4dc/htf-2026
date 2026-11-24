@@ -15,26 +15,21 @@ export const Route = createFileRoute('/_authed/bounties')({
   component: BountyBoardPage,
 })
 
+// Hunters get these tabs; commanders can't claim, so they just see everything (no tabs).
 const FILTERS = [
   { id: 'all', label: 'All' },
-  { id: 'unclaimed', label: 'Unclaimed' },
-  { id: 'mine', label: 'Mine' },
-  { id: 'fugitives', label: 'Fugitives' },
+  { id: 'mine', label: 'Claimed by you' },
+  { id: 'captured', label: 'Captured' },
 ] as const
 
 type FilterId = (typeof FILTERS)[number]['id']
 
 function matches(filter: FilterId, bounty: Bounty, guardian: Guardian) {
-  switch (filter) {
-    case 'unclaimed':
-      return bounty.claimedByGuardianId === null && bounty.status !== FINAL_STATUS
-    case 'mine':
-      return bounty.claimedByGuardianId === guardian.guardianId
-    case 'fugitives':
-      return bounty.kind === 'FUGITIVE'
-    default:
-      return true
-  }
+  const yours = bounty.claimedByGuardianId === guardian.guardianId
+  const closed = bounty.status === FINAL_STATUS
+  if (filter === 'mine') return yours && !closed
+  if (filter === 'captured') return yours && closed
+  return true
 }
 
 function BountyBoardPage() {
@@ -107,38 +102,47 @@ function BountyBoardPage() {
         </section>
       )}
 
-      {/* Tabs: one quiet row, the active one underlined. */}
-      <div role="group" aria-label="Filter bounties" className="flex gap-1 overflow-x-auto border-b border-line">
-        {FILTERS.map((f) => (
-          <button
-            key={f.id}
-            type="button"
-            aria-pressed={filter === f.id}
-            onClick={() => setFilter(f.id)}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
-              filter === f.id
-                ? 'border-cyan text-fg'
-                : 'border-transparent text-muted hover:text-fg'
-            }`}
-          >
-            {f.label} <span className="text-muted tabular-nums">{counts[f.id]}</span>
-          </button>
-        ))}
-      </div>
+      {/* Tabs for hunters only: one quiet row, the active one underlined. */}
+      {!isCommander && (
+        <div role="group" aria-label="Filter bounties" className="flex gap-1 overflow-x-auto border-b border-line">
+          {FILTERS.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              aria-pressed={filter === f.id}
+              onClick={() => setFilter(f.id)}
+              className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+                filter === f.id
+                  ? 'border-cyan text-fg'
+                  : 'border-transparent text-muted hover:text-fg'
+              }`}
+            >
+              {f.label} <span className="text-muted tabular-nums">{counts[f.id]}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
-      {open.length === 0 ? (
+      {filter === 'captured' ? (
+        // Your trophies: shown open, not folded away.
+        closed.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-line px-6 py-10 text-center text-muted">
+            Nothing captured yet. Close a hunt to see it here.
+          </p>
+        ) : (
+          <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{closed.map(card)}</ul>
+        )
+      ) : open.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line px-6 py-10 text-center text-muted">
           {filter === 'mine'
-            ? isCommander
-              ? 'Commanders do not hunt. Assign bounties to hunters from a bounty page.'
-              : 'No open hunt. Pick one from Unclaimed.'
+            ? 'No open hunt. Claim one from All.'
             : 'No open bounties here. Achrona is quiet, for now.'}
         </p>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{open.map(card)}</ul>
       )}
 
-      {closed.length > 0 && (
+      {filter === 'all' && closed.length > 0 && (
         <details className="group">
           <summary className="inline-flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-muted hover:text-fg [&::-webkit-details-marker]:hidden">
             <ChevronDown aria-hidden="true" className="size-4 transition-transform group-open:rotate-180" />

@@ -1,9 +1,10 @@
 import { Link, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import { Hexagon, LogOut } from 'lucide-react'
+import { Dices, Hexagon, LogOut } from 'lucide-react'
 import { Shards } from '#/components/bounty/Shards.tsx'
 import { logout } from '#/lib/auth.functions.ts'
 import { roleLabel, type Guardian } from '#/lib/guardian.ts'
+import { useDisplayedShards } from '#/lib/shardHold.ts'
 
 const navClass =
   'rounded-lg px-3 py-2 text-base font-medium text-muted transition-colors hover:bg-subtle hover:text-fg'
@@ -15,6 +16,8 @@ export function TopBar({ guardian, shards }: { guardian: Guardian; shards: numbe
   const router = useRouter()
   const logoutFn = useServerFn(logout)
   const isCommander = guardian.role === 'commander'
+  // Frozen while the roulette wheel turns, so the header can't spoil the result.
+  const displayedShards = useDisplayedShards(shards)
 
   async function handleLogout() {
     await logoutFn()
@@ -39,8 +42,20 @@ export function TopBar({ guardian, shards }: { guardian: Guardian; shards: numbe
           <Link to="/bounties" className={navClass} activeProps={{ className: navActiveClass }}>
             Bounties
           </Link>
-          <Link to="/roulette" className={navClass} activeProps={{ className: navActiveClass }}>
-            Roulette
+          {/* Casino-style: gold edge, a sheen that sweeps by, solid gold when active. */}
+          <Link
+            to="/roulette"
+            className="group relative ml-1 inline-flex items-center gap-2 overflow-hidden rounded-full border border-amber-300/70 bg-linear-to-br from-[#3a2414] to-[#1c1533] px-4 py-2 text-base font-semibold text-amber-200 shadow-[0_0_14px_rgb(251_191_36/0.25)] transition hover:border-amber-200 hover:text-amber-100 hover:shadow-[0_0_22px_rgb(251_191_36/0.45)] data-[status=active]:border-amber-200 data-[status=active]:from-amber-300 data-[status=active]:to-[#c9713f] data-[status=active]:text-copper-ink"
+          >
+            <span
+              aria-hidden="true"
+              className="roulette-shine pointer-events-none absolute inset-y-0 -left-1/2 w-1/3 bg-linear-to-r from-transparent via-white/35 to-transparent"
+            />
+            <Dices
+              aria-hidden="true"
+              className="relative size-5 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110"
+            />
+            <span className="relative">Roulette</span>
           </Link>
         </nav>
       </div>
@@ -51,7 +66,7 @@ export function TopBar({ guardian, shards }: { guardian: Guardian; shards: numbe
           title="Your shards from closed bounties"
           className="rounded-lg border border-cyan/40 bg-cyan/10 px-3 py-1 text-base transition-colors hover:bg-cyan/20"
         >
-          <Shards amount={shards} />
+          <Shards amount={displayedShards} />
         </Link>
         <span className="text-lg font-medium text-fg">{guardian.codename}</span>
         <span

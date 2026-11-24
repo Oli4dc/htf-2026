@@ -30,7 +30,7 @@ The database still stores glitches, echoes and the original statuses (minus CONT
 
 ## What you can do
 
-- **Post a bounty** (commanders, on the Bounties page, phone friendly): name, threat, area, reward and what was seen. A prison-break alarm goes off.
+- **Post a bounty** (commanders, on the Bounties page, phone friendly): name, threat, area, reward and what was seen.
 - **Report a sighting** (everyone): on a fugitive's page, add what you saw in the field.
 - **Dashboard:** every fugitive, newest first, plus the **orb**. The danger level is the share of fugitives still loose. The orb cracks, turns red and sounds the alarm as danger rises, and heals as fugitives are captured.
 - **Bounties:** wanted posters. A hunter claims a bounty and earns **shards** when the fugitive is captured.
@@ -42,7 +42,7 @@ The database still stores glitches, echoes and the original statuses (minus CONT
 ## Demo flow (about 3 minutes)
 
 1. **Open in the world.** "The Null Vault has been breached." Show the dashboard: danger at 58%, the orb cracked and red, 7 fugitives loose.
-2. **Commander on a phone** posts a bounty on a new criminal at the Forge. The alarm fires.
+2. **Commander on a phone** posts a bounty on a new criminal at the Forge.
 3. **On the laptop** nobody touched anything: the fugitive appears on the dashboard and the danger level rises.
 4. **Roblox** shows the same change in the 3D city.
 5. **The hunt.** A defender claims the bounty and adds a sighting from the field. One press on the wanted poster and the fugitive is Captured.
@@ -51,7 +51,7 @@ The database still stores glitches, echoes and the original statuses (minus CONT
 
 ## Before the demo
 
-- `npm run db:seed` resets the story to the opening state (58% danger, 5 of 12 captured). It also logs everyone out.
+- `npm run db:seed` resets to a clean start: the four logins and an empty board (no bounties, sightings or roulette spins, 0% danger). It also logs everyone out.
 - Logins: **Warden** (commander), **Ember**, **Nyx**, **Rook** (defenders). Password `achrona`.
 - Start the tunnel once and leave it running; the Roblox script needs its URL.
 - Record a backup video of the full flow, including Roblox, in case the network fails on stage.

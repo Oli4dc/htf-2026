@@ -6,11 +6,20 @@ import { useRouter } from '@tanstack/react-router'
  * echoes and status changes show up without a refresh.
  * Form input is kept: only loader data is replaced.
  */
-let pausedUntil = 0
+let holds = 0
 
-/** Hold live updates for a moment, e.g. so the header balance doesn't spoil a spinning wheel. */
-export function pauseLiveUpdates(ms: number) {
-  pausedUntil = Math.max(pausedUntil, Date.now() + ms)
+/**
+ * Stop live updates until the returned function is called, e.g. while the roulette
+ * wheel turns. Calling the release function twice is harmless.
+ */
+export function holdLiveUpdates() {
+  holds += 1
+  let released = false
+  return () => {
+    if (released) return
+    released = true
+    holds -= 1
+  }
 }
 
 export function useLiveUpdates(intervalMs = 2000) {
@@ -21,7 +30,7 @@ export function useLiveUpdates(intervalMs = 2000) {
 
     async function refresh() {
       // Skip hidden tabs and never stack requests on a slow connection.
-      if (running || document.hidden || !navigator.onLine || Date.now() < pausedUntil) return
+      if (running || document.hidden || !navigator.onLine || holds > 0) return
       running = true
       try {
         await router.invalidate()

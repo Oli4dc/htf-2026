@@ -89,8 +89,15 @@ body {
 .orb-alarm-ripple { animation: orb-alarm-ripple 1.6s ease-out infinite; }
 .orb-alarm-ripple-late { animation: orb-alarm-ripple 1.6s ease-out 0.8s infinite; }
 
+/* Roulette tab: a sheen sweeps across, then rests for a few seconds. */
+@keyframes roulette-shine {
+  0%, 65% { transform: translateX(0) skewX(-20deg); }
+  100% { transform: translateX(450%) skewX(-20deg); }
+}
+.roulette-shine { animation: roulette-shine 4s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   .orb-pulse, .orb-flicker, .orb-alarm-flash, .orb-alarm-spin,
-  .orb-alarm-ripple, .orb-alarm-ripple-late { animation: none; }
-  .orb-alarm-ripple, .orb-alarm-ripple-late { opacity: 0; }
+  .orb-alarm-ripple, .orb-alarm-ripple-late, .roulette-shine { animation: none; }
+  .orb-alarm-ripple, .orb-alarm-ripple-late, .roulette-shine { opacity: 0; }
 }

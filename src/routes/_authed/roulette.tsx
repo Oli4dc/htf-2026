@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import { Dices } from 'lucide-react'
@@ -13,7 +13,8 @@ import {
   type RouletteBet,
   type Spin,
 } from '#/lib/roulette.ts'
-import { pauseLiveUpdates } from '#/lib/useLiveUpdates.ts'
+import { holdShards, releaseShards } from '#/lib/shardHold.ts'
+import { holdLiveUpdates } from '#/lib/useLiveUpdates.ts'
 
 export const Route = createFileRoute('/_authed/roulette')({
   loader: () => getRoulette(),
@@ -45,7 +46,7 @@ function winLine(spin: Spin) {
 }
 
 function RoulettePage() {
-  const { balance: loadedBalance, spins } = Route.useLoaderData()
+  const loaded = Route.useLoaderData()
   const router = useRouter()
   const spin = useServerFn(spinRoulette)
 
@@ -54,20 +55,35 @@ function RoulettePage() {
   const [rotation, setRotation] = useState(0)
   const [spinning, setSpinning] = useState(false)
   const [last, setLast] = useState<Spin | null>(null)
-  // While the wheel turns, keep showing the balance from before the spin.
-  const [shownBalance, setShownBalance] = useState<number | null>(null)
+  // While the wheel turns, show exactly what was on screen before the spin:
+  // balance and last spins only change once the wheel has stopped.
+  const [frozen, setFrozen] = useState<typeof loaded | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const releaseLive = useRef<() => void>(() => {})
 
-  const balance = shownBalance ?? loadedBalance
+  const { balance, spins } = frozen ?? loaded
   const wager = Number(wagerText)
   const validWager = Number.isInteger(wager) && wager >= 1 && wager <= Math.min(balance, MAX_WAGER)
+
+  function unfreeze() {
+    setFrozen(null)
+    releaseShards()
+    releaseLive.current()
+  }
+
+  // Leaving the page mid-spin must not leave the header frozen or live updates off.
+  useEffect(() => () => {
+    releaseShards()
+    releaseLive.current()
+  }, [])
 
   async function handleSpin() {
     setError(null)
     setLast(null)
     setSpinning(true)
-    setShownBalance(balance - wager)
-    pauseLiveUpdates(SPIN_MS + 1000)
+    setFrozen({ balance, spins })
+    holdShards(balance)
+    releaseLive.current = holdLiveUpdates()
     try {
       const result = await spin({ data: { bet, wager } })
       // Land the drawn pocket under the pointer, after a few full turns.
@@ -81,17 +97,21 @@ function RoulettePage() {
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       setTimeout(
         async () => {
-          setLast(result)
-          setSpinning(false)
-          await router.invalidate()
-          setShownBalance(null)
+          // The wheel has stopped: fetch the new balance first, then show it with the result.
+          try {
+            await router.invalidate()
+          } finally {
+            setLast(result)
+            setSpinning(false)
+            unfreeze()
+          }
         },
         reduceMotion ? 300 : SPIN_MS,
       )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'The wheel jammed. Try again.')
       setSpinning(false)
-      setShownBalance(null)
+      unfreeze()
     }
   }
 
