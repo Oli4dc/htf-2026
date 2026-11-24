@@ -30,7 +30,8 @@ export function TopBar({ guardian, shards }: { guardian: Guardian; shards: numbe
             Achrona Mission Control
           </span>
         </Link>
-        {/* New pages: add a link here. */}
+        {/* New pages: add a link here. The leaderboard opens from the dashboard and the
+            shard total; Create a bounty from the dashboard button. */}
         <nav className="flex flex-wrap items-center gap-1">
           <Link to="/" className={navClass} activeOptions={{ exact: true }} activeProps={{ className: navActiveClass }}>
             Dashboard
@@ -38,17 +39,9 @@ export function TopBar({ guardian, shards }: { guardian: Guardian; shards: numbe
           <Link to="/bounties" className={navClass} activeProps={{ className: navActiveClass }}>
             Bounties
           </Link>
-          <Link to="/leaderboard" className={navClass} activeProps={{ className: navActiveClass }}>
-            Hunters
-          </Link>
           <Link to="/roulette" className={navClass} activeProps={{ className: navActiveClass }}>
             Roulette
           </Link>
-          {isCommander && (
-            <Link to="/report" className={navClass} activeProps={{ className: navActiveClass }}>
-              Report criminal
-            </Link>
-          )}
         </nav>
       </div>
 

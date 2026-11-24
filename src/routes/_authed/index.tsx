@@ -1,18 +1,24 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { GlitchesTable } from '#/components/GlitchesTable.tsx'
 import { MagicPanel } from '#/components/MagicPanel.tsx'
+import { TopHunters } from '#/components/bounty/TopHunters.tsx'
+import { getLeaderboard } from '#/lib/bounties.functions.ts'
 import { getGlitches, getMagicLevel } from '#/lib/glitches.functions.ts'
 
 export const Route = createFileRoute('/_authed/')({
   loader: async () => {
-    const [glitches, magicLevel] = await Promise.all([getGlitches(), getMagicLevel()])
-    return { glitches, magicLevel }
+    const [glitches, magicLevel, hunters] = await Promise.all([
+      getGlitches(),
+      getMagicLevel(),
+      getLeaderboard(),
+    ])
+    return { glitches, magicLevel, hunters }
   },
   component: DashboardPage,
 })
 
 function DashboardPage() {
-  const { glitches, magicLevel } = Route.useLoaderData()
+  const { glitches, magicLevel, hunters } = Route.useLoaderData()
   const { guardian } = Route.useRouteContext()
   const open = glitches.filter((g) => g.status !== 'FIXED').length
 
@@ -21,13 +27,7 @@ function DashboardPage() {
       {/* Right column on desktop; first on phones. */}
       <div className="flex flex-col gap-6 lg:order-last">
         <MagicPanel level={magicLevel} captured={glitches.length - open} total={glitches.length} />
-        {/* Commanders open new bounties; defenders go hunt the existing ones. */}
-        <Link
-          to={guardian.role === 'commander' ? '/report' : '/bounties'}
-          className="flex w-full items-center justify-center rounded-xl bg-copper px-6 py-5 text-2xl font-bold text-copper-ink shadow-lg shadow-black/30 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mint"
-        >
-          {guardian.role === 'commander' ? 'Report criminal' : 'Hunt a bounty'}
-        </Link>
+        <TopHunters hunters={hunters} guardianId={guardian.guardianId} />
       </div>
 
       <section className="flex flex-col gap-4 rounded-2xl border border-line bg-panel p-4 sm:p-6 lg:col-span-2 lg:max-h-[calc(100vh-9.5rem)]">

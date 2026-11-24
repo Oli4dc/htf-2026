@@ -21,8 +21,8 @@ The jury knows the assignment in these words. Say the link out loud during the p
 |---|---|---|
 | Guardian with a role | Hunter (defender) or commander | Login, top bar |
 | Glitch | A fugitive with a bounty: name, threat 1-5, reward, area | Dashboard, Bounties |
-| Echo | A sighting of that fugitive | Fugitive page, Report criminal |
-| A new echo opens a glitch | A commander reporting a criminal opens a new bounty; defenders add sightings to existing bounties | Report criminal (commanders), fugitive page |
+| Echo | A sighting of that fugitive | Fugitive page |
+| A new echo opens a glitch | A commander posting a bounty opens a new glitch; hunters add sightings to existing bounties | Bounties (commanders), fugitive page |
 | Status LEAKED → ASSESSING → FIXED | Wanted → Tracking → Captured | Bounties, fugitive page |
 | Commander = defender + admin rights | Only commanders change any status, assign hunters and delete | Dashboard, fugitive page |
 
@@ -30,7 +30,7 @@ The database still stores glitches, echoes and the original statuses (minus CONT
 
 ## What you can do
 
-- **Report a criminal** (commanders, phone friendly): name, threat, area and what you saw. A prison-break alarm goes off.
+- **Post a bounty** (commanders, on the Bounties page, phone friendly): name, threat, area, reward and what was seen. A prison-break alarm goes off.
 - **Report a sighting** (everyone): on a fugitive's page, add what you saw in the field.
 - **Dashboard:** every fugitive, newest first, plus the **orb**. The danger level is the share of fugitives still loose. The orb cracks, turns red and sounds the alarm as danger rises, and heals as fugitives are captured.
 - **Bounties:** wanted posters. A hunter claims a bounty and earns **shards** when the fugitive is captured.
@@ -42,7 +42,7 @@ The database still stores glitches, echoes and the original statuses (minus CONT
 ## Demo flow (about 3 minutes)
 
 1. **Open in the world.** "The Null Vault has been breached." Show the dashboard: danger at 58%, the orb cracked and red, 7 fugitives loose.
-2. **Commander on a phone** reports a new criminal at the Forge. The alarm fires.
+2. **Commander on a phone** posts a bounty on a new criminal at the Forge. The alarm fires.
 3. **On the laptop** nobody touched anything: the fugitive appears on the dashboard and the danger level rises.
 4. **Roblox** shows the same change in the 3D city.
 5. **The hunt.** A defender claims the bounty and adds a sighting from the field. One press on the wanted poster and the fugitive is Captured.

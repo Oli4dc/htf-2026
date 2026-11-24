@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from 'react'
+import { useCallback, useState, type FormEvent } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import { Plus } from 'lucide-react'
+import { CriminalAlarm } from '#/components/CriminalAlarm.tsx'
 import { postBounty } from '#/lib/bounties.functions.ts'
 import {
   LOCATIONS,
@@ -28,6 +29,13 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
   const [reward, setReward] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
+  const [posted, setPosted] = useState<{ glitchId: number; text: string } | null>(null)
+
+  const closeAlarm = useCallback(() => {
+    if (!posted) return
+    onDone()
+    navigate({ to: '/glitches/$glitchId', params: { glitchId: String(posted.glitchId) } })
+  }, [posted, onDone, navigate])
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -44,8 +52,8 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
           reward: reward === '' ? undefined : Number(reward),
         },
       })
-      onDone()
-      await navigate({ to: '/glitches/$glitchId', params: { glitchId: String(glitchId) } })
+      // Sound the prison-break alarm; closing it opens the new bounty.
+      setPosted({ glitchId, text: description.trim() || targetName.trim() })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'The bounty was not posted. Try again.')
     } finally {
@@ -133,6 +141,10 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
           <Plus className="size-5" /> {sending ? 'Posting…' : 'Post bounty'}
         </button>
       </div>
+
+      {posted && (
+        <CriminalAlarm glitchId={posted.glitchId} description={posted.text} onClose={closeAlarm} />
+      )}
     </form>
   )
 }

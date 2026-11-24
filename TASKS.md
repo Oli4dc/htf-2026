@@ -34,7 +34,7 @@ Reset the demo data at any time with `npm run db:seed`.
 src/routes/login.tsx                  public login page
 src/routes/_authed.tsx                layout + login guard for everything inside _authed/
 src/routes/_authed/index.tsx          Overview          ->  /
-src/routes/_authed/report.tsx         Report echo       ->  /report
+src/routes/_authed/bounties.tsx       Bounties          ->  /bounties  (commanders post bounties here)
 src/routes/_authed/glitches/$glitchId.tsx  Glitch detail ->  /glitches/142
 src/lib/*.functions.ts                server functions (callable from components and loaders)
 src/lib/*.server.ts                   server-only helpers (never import them in components)
@@ -127,7 +127,7 @@ Export the key data as a PDF.
 
 ### Task 5: Keyboard shortcuts
 - New `src/lib/useShortcuts.ts` hook + `src/components/ShortcutsHelp.tsx` overlay. Mount both with one line in `src/routes/_authed.tsx`.
-- Keys: <kbd>j</kbd>/<kbd>k</kbd> next/previous glitch on the detail page (get the list via the existing `getGlitches` server function), <kbd>n</kbd> → `/report`, <kbd>g</kbd> → `/`, <kbd>?</kbd> open/close help, <kbd>Esc</kbd> close.
+- Keys: <kbd>j</kbd>/<kbd>k</kbd> next/previous glitch on the detail page (get the list via the existing `getGlitches` server function), <kbd>n</kbd> → `/bounties`, <kbd>g</kbd> → `/`, <kbd>?</kbd> open/close help, <kbd>Esc</kbd> close.
 - **Ignore keys while typing** in an input or textarea.
 
 ### Task 6: Offline banner
