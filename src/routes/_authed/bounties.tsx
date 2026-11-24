@@ -130,7 +130,7 @@ function BountyBoardPage() {
         <p className="rounded-2xl border border-dashed border-line px-6 py-10 text-center text-muted">
           {filter === 'mine'
             ? isCommander
-              ? 'Commanders do not hunt. Assign bounties to defenders from a bounty page.'
+              ? 'Commanders do not hunt. Assign bounties to hunters from a bounty page.'
               : 'No open hunt. Pick one from Unclaimed.'
             : 'No open bounties here. Achrona is quiet, for now.'}
         </p>

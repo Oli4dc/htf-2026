@@ -198,7 +198,7 @@ export const claimBounty = createServerFn({ method: 'POST' })
   .handler(async ({ data: glitchId }) => {
     const guardian = requireGuardian()
     if (guardian.role !== 'defender') {
-      throw new Error('Only defenders hunt bounties. Commanders assign them instead.')
+      throw new Error('Only hunters claim bounties. Commanders assign them instead.')
     }
 
     db.transaction((tx) => {
@@ -383,7 +383,7 @@ export const assignBounty = createServerFn({ method: 'POST' })
           .where(eq(guardians.guardianId, data.guardianId))
           .get()
         if (!hunter) throw new Error('That guardian does not exist.')
-        if (hunter.role !== 'defender') throw new Error('Bounties go to defenders.')
+        if (hunter.role !== 'defender') throw new Error('Bounties go to hunters.')
 
         // Same rule as claiming: a hunter holds one open bounty at a time.
         const current = findActiveHunt(tx, data.guardianId)

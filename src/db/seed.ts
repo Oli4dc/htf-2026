@@ -148,5 +148,5 @@ console.log(
   `Seeded ${guardianRows.length} guardians, ${seedBounties.length} bounties, ${sightingCount} sightings.`,
 )
 console.log(
-  `Demo logins: Warden (commander), Ember, Nyx and Rook (defenders); password "${DEMO_PASSWORD}".`,
+  `Demo logins: Warden (commander), Ember, Nyx and Rook (hunters); password "${DEMO_PASSWORD}".`,
 )
