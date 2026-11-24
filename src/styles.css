@@ -71,6 +71,26 @@ body {
 .orb-pulse { animation: orb-pulse 5s ease-in-out infinite; }
 .orb-flicker { animation: orb-flicker 2.4s linear infinite; }
 
+/* Orb alarm: high danger. Flashing stays under 3 per second (photosensitivity). */
+@keyframes orb-alarm-flash {
+  0%, 100% { opacity: var(--orb-red, 0.6); }
+  50% { opacity: calc(var(--orb-red, 0.6) * 0.45); }
+}
+
+@keyframes orb-alarm-spin { to { transform: rotate(1turn); } }
+
+@keyframes orb-alarm-ripple {
+  from { transform: scale(1); opacity: 0.85; }
+  to { transform: scale(1.4); opacity: 0; }
+}
+
+.orb-alarm-flash { animation: orb-alarm-flash 1s ease-in-out infinite; }
+.orb-alarm-spin { animation: orb-alarm-spin 1.6s linear infinite; }
+.orb-alarm-ripple { animation: orb-alarm-ripple 1.6s ease-out infinite; }
+.orb-alarm-ripple-late { animation: orb-alarm-ripple 1.6s ease-out 0.8s infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .orb-pulse, .orb-flicker { animation: none; }
+  .orb-pulse, .orb-flicker, .orb-alarm-flash, .orb-alarm-spin,
+  .orb-alarm-ripple, .orb-alarm-ripple-late { animation: none; }
+  .orb-alarm-ripple, .orb-alarm-ripple-late { opacity: 0; }
 }

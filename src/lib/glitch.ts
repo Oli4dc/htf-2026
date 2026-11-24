@@ -20,8 +20,12 @@ export type Glitch = {
   timestamp: string
 }
 
-/** A glitch row on the overview, with its echo count. */
-export type GlitchSummary = Glitch & { echoCount: number }
+/** A glitch row on the overview, with its echo count and bounty name. */
+export type GlitchSummary = Glitch & {
+  echoCount: number
+  targetName: string
+  objective: 'CAPTURE' | 'BANISH'
+}
 
 export type EchoWithGuardian = {
   echoId: number
@@ -33,23 +37,22 @@ export type EchoWithGuardian = {
 
 export type GlitchDetail = Glitch & { echoes: EchoWithGuardian[] }
 
-/** Display id only, e.g. 142 -> "GL-0142". Never stored. */
+/**
+ * Display id only, e.g. 142 -> "FG-0142". Never stored.
+ * Each glitch is one escaped prisoner (a fugitive) in the UI.
+ */
 export function formatGlitchId(glitchId: number) {
-  return `GL-${String(glitchId).padStart(4, '0')}`
+  return `FG-${String(glitchId).padStart(4, '0')}`
 }
 
 export const ECHO_MAX_LENGTH = 1000
 
-/** Magic drained from Achrona by one glitch in each status. */
-export const MAGIC_COST: Record<GlitchStatus, number> = {
-  LEAKED: 12,
-  ASSESSING: 8,
-  CONTAINING: 4,
-  FIXED: 0,
-}
-
-/** 100 when nothing is open, never below 0. */
+/**
+ * Magic returns as fugitives go back to the Time Prison:
+ * the share of fugitives captured (FIXED), in percent. 100 when nobody escaped.
+ */
 export function computeMagicLevel(statuses: GlitchStatus[]) {
-  const drained = statuses.reduce((sum, status) => sum + MAGIC_COST[status], 0)
-  return Math.max(0, 100 - drained)
+  if (statuses.length === 0) return 100
+  const captured = statuses.filter((status) => status === 'FIXED').length
+  return Math.round((captured / statuses.length) * 100)
 }
