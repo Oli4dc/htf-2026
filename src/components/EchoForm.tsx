@@ -6,8 +6,11 @@ import { reportEcho } from '#/lib/glitches.functions.ts'
 import {
   LOCATIONS,
   LOCATION_LABELS,
+  MAP_EVENT_LABELS,
   MAX_THREAT,
   defaultReward,
+  eventFromText,
+  kindFromText,
   type Location,
 } from '#/lib/bounty.ts'
 import { ECHO_MAX_LENGTH } from '#/lib/glitch.ts'
@@ -52,7 +55,7 @@ export function EchoForm({
       })
       setDescription('')
       setTargetName('')
-      await onReported(result.glitchId, description.trim())
+      await onReported(result.glitchId, description.trim() || targetName.trim())
     } catch (err) {
       setError(err instanceof Error ? err.message : 'The report got lost. Try again.')
     } finally {
@@ -61,17 +64,22 @@ export function EchoForm({
   }
 
   const tooLong = description.length > ECHO_MAX_LENGTH
+  // A new bounty needs a title or some info; a sighting needs its text.
+  const empty = opensBounty ? !targetName.trim() && !description.trim() : !description.trim()
+  // Same word lists as the server: shows what the report will look like on the map.
+  const mapEvent = eventFromText(targetName, description)
+  const kind = kindFromText(targetName, description)
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {opensBounty && (
         <label className={label}>
-          Name it (optional)
+          Title
           <input
             value={targetName}
             maxLength={80}
             onChange={(e) => setTargetName(e.target.value)}
-            placeholder="Leave empty for “Unidentified anomaly”"
+            placeholder="e.g. Fire at the Forge, Crash, Glitch, Escaped criminal"
             className={field}
           />
         </label>
@@ -80,9 +88,9 @@ export function EchoForm({
       <textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder={placeholder}
-        rows={5}
-        required
+        placeholder={opensBounty ? 'Extra info (optional)' : placeholder}
+        rows={opensBounty ? 3 : 5}
+        required={!opensBounty}
         aria-label="Report description"
         className="w-full resize-y rounded-2xl border border-line bg-app/60 px-4 py-3 text-base text-fg placeholder:text-muted/70 focus:border-accent focus:ring-4 focus:ring-glow focus:outline-none"
       />
@@ -114,7 +122,10 @@ export function EchoForm({
             </select>
           </label>
           <p className="text-sm text-muted sm:col-span-2">
-            Bounty posted on it: <Shards amount={defaultReward(threat)} />
+            Bounty posted on it: <Shards amount={defaultReward(threat, kind)} /> · On the map:{' '}
+            <span className="font-semibold text-fg">
+              {MAP_EVENT_LABELS[mapEvent ?? (kind === 'FUGITIVE' ? 'monster_landing' : 'sky_glitch')]}
+            </span>
           </p>
         </div>
       )}
@@ -128,7 +139,7 @@ export function EchoForm({
         </p>
         <button
           type="submit"
-          disabled={sending || !description.trim() || tooLong}
+          disabled={sending || empty || tooLong}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-copper px-5 py-3 text-lg font-bold text-copper-ink shadow-md shadow-black/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Send className="size-4" />

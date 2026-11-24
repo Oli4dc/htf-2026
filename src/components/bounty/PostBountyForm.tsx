@@ -67,10 +67,9 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
         />
       </label>
       <label className={`${label} sm:col-span-2`}>
-        What do hunters need to know?
+        What do hunters need to know? (optional)
         <textarea
-          required
-          rows={3}
+          rows={2}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Last seen, what it does, how dangerous it is"
@@ -124,7 +123,7 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
 
       <div className="flex flex-col-reverse gap-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
         <p role={error ? 'alert' : undefined} className={`text-sm ${error ? 'text-red-300' : 'text-muted'}`}>
-          {error ?? 'Your description becomes the first sighting.'}
+          {error ?? 'Words like fire, crash or glitch in the name set the event on the map.'}
         </p>
         <button
           type="submit"

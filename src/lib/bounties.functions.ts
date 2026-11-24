@@ -9,6 +9,7 @@ import {
   FINAL_STATUS,
   MAX_THREAT,
   MIN_THREAT,
+  defaultDescription,
   defaultReward,
   isBountyKind,
   isLocation,
@@ -292,7 +293,8 @@ export const advanceBounty = createServerFn({ method: 'POST' })
 
 type PostBountyInput = {
   targetName: string
-  description: string
+  /** Optional: an empty one becomes "<name> reported at <area>." */
+  description?: string
   kind: BountyKind
   threat: number
   location: Location
@@ -305,9 +307,13 @@ export const postBounty = createServerFn({ method: 'POST' })
     if (!isBountyKind(data.kind)) throw new Error('Unknown kind.')
     if (!isLocation(data.location)) throw new Error('Unknown location.')
     const threat = parseThreat(data.threat)
+    const targetName = parseText(data.targetName, 'Target name', 80)
+    const typed = String(data.description ?? '').trim()
     return {
-      targetName: parseText(data.targetName, 'Target name', 80),
-      description: parseText(data.description, 'Description', ECHO_MAX_LENGTH),
+      targetName,
+      description: typed
+        ? parseText(typed, 'Description', ECHO_MAX_LENGTH)
+        : defaultDescription(targetName, data.location),
       kind: data.kind,
       threat,
       location: data.location,

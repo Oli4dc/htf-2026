@@ -2,7 +2,13 @@ import { timingSafeEqual } from 'node:crypto'
 import { count, eq, max, ne } from 'drizzle-orm'
 import { db } from '#/db/index.ts'
 import { glitches, guardians } from '#/db/schema.ts'
-import { travelProgress, travelState, type TravelState } from '#/lib/bounty.ts'
+import {
+  mapEventFor,
+  travelProgress,
+  travelState,
+  type MapEventType,
+  type TravelState,
+} from '#/lib/bounty.ts'
 import {
   GLITCH_LOCATIONS,
   computeMagicLevel,
@@ -27,8 +33,8 @@ export type GridState = {
   events: MapEvent[]
 }
 
-/** Incident shown on the map for a loose fugitive. Derived from the bounty, never stored. */
-export type MapEventType = 'fire' | 'crash' | 'monster_landing' | 'sky_glitch'
+/** Incident shown on the map for a loose bounty. Derived from the words of the report, never stored. */
+export type { MapEventType }
 
 export type MapEvent = {
   /** glitch_id: the same bounty always shows the same event. */
@@ -36,18 +42,6 @@ export type MapEvent = {
   area: GlitchLocation
   type: MapEventType
   threat: number
-}
-
-// Fugitives escaped from the Null Vault show as creature incidents, anomalies as broken-world ones.
-// glitch_id picks between the two, so the choice is stable without a database column.
-const EVENT_TYPES_BY_KIND: Record<string, [MapEventType, MapEventType]> = {
-  FUGITIVE: ['monster_landing', 'fire'],
-  ANOMALY: ['sky_glitch', 'crash'],
-}
-
-function eventTypeFor(id: number, kind: string): MapEventType {
-  const pair = EVENT_TYPES_BY_KIND[kind] ?? EVENT_TYPES_BY_KIND.ANOMALY
-  return pair[id % 2]
 }
 
 export type Hunt = {
@@ -117,13 +111,19 @@ export function getGridState(): GridState {
       id: glitches.glitchId,
       area: glitches.location,
       kind: glitches.kind,
+      targetName: glitches.targetName,
+      description: glitches.description,
       threat: glitches.threat,
     })
     .from(glitches)
     .where(ne(glitches.status, 'FIXED'))
     .orderBy(glitches.glitchId)
     .all()
-    .map(({ kind, ...event }) => ({ ...event, type: eventTypeFor(event.id, kind) }))
+    // "fire" in the title gives a fire, "crash" a crash, and so on (word lists in bounty.ts).
+    .map(({ kind, targetName, description, ...event }) => ({
+      ...event,
+      type: mapEventFor({ kind, targetName, description }),
+    }))
 
   return { magic, danger: 100 - magic, areas, threat, hunts, events }
 }

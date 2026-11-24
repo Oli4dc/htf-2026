@@ -64,6 +64,60 @@ export function isBountyKind(value: unknown): value is BountyKind {
   return BOUNTY_KINDS.includes(value as BountyKind)
 }
 
+// --- Map events ------------------------------------------------------------------
+// What a loose bounty looks like on the Roblox map. Never stored: it is read from the words
+// of the report, so typing "fire" in the title is enough to set the Forge on fire.
+
+export const MAP_EVENT_TYPES = ['fire', 'crash', 'monster_landing', 'sky_glitch'] as const
+export type MapEventType = (typeof MAP_EVENT_TYPES)[number]
+
+export const MAP_EVENT_LABELS: Record<MapEventType, string> = {
+  fire: 'Fire',
+  crash: 'Crash',
+  monster_landing: 'Fugitive on the loose',
+  sky_glitch: 'Sky glitch',
+}
+
+// Word lists per event, typos included. Words of 4+ letters also match as a prefix
+// ("fire" matches "fires" and "fireball"); shorter ones only match exactly ("fir" is not "first").
+const MAP_EVENT_WORDS: [MapEventType, string[]][] = [
+  ['fire', ['fire', 'fir', 'firre', 'fier', 'fyre', 'flame', 'burn', 'blaze', 'inferno', 'ember', 'smoke', 'arson', 'lava']],
+  ['crash', ['crash', 'crah', 'crsh', 'collapse', 'wreck', 'explosion', 'explode', 'blast', 'impact', 'meteor', 'quake', 'rubble']],
+  ['sky_glitch', ['glitch', 'glich', 'gltch', 'anomaly', 'rift', 'static', 'distort', 'flicker', 'lightning', 'storm', 'bug']],
+  ['monster_landing', ['criminal', 'fugitive', 'prisoner', 'escape', 'monster', 'beast', 'creature', 'dragon', 'wraith', 'thief', 'bandit', 'robber', 'outlaw', 'villain']],
+]
+
+/** The event named by the first matching word of the first text that has one, or null. */
+export function eventFromText(...texts: (string | null | undefined)[]): MapEventType | null {
+  for (const text of texts) {
+    for (const word of (text ?? '').toLowerCase().split(/[^a-z]+/)) {
+      if (!word) continue
+      for (const [type, keywords] of MAP_EVENT_WORDS) {
+        if (keywords.some((k) => word === k || (k.length >= 4 && word.startsWith(k)))) return type
+      }
+    }
+  }
+  return null
+}
+
+/** Title first, then the description; without a known word the kind decides. */
+export function mapEventFor(bounty: { kind: string; targetName: string; description: string }): MapEventType {
+  return (
+    eventFromText(bounty.targetName, bounty.description) ??
+    (bounty.kind === 'FUGITIVE' ? 'monster_landing' : 'sky_glitch')
+  )
+}
+
+/** A report that talks about a criminal or fugitive opens a FUGITIVE bounty, anything else an ANOMALY. */
+export function kindFromText(...texts: (string | null | undefined)[]): BountyKind {
+  return eventFromText(...texts) === 'monster_landing' ? 'FUGITIVE' : 'ANOMALY'
+}
+
+/** Sighting text for a bounty reported without any info. */
+export function defaultDescription(targetName: string, location: Location) {
+  return `${targetName} reported at ${LOCATION_LABELS[location]}.`
+}
+
 // --- Status as hunters see it -------------------------------------------------
 // The database keeps LEAKED/ASSESSING/FIXED; the UI shows the hunt.
 

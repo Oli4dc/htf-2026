@@ -9,8 +9,10 @@ import {
   DEFAULT_TARGET_NAME,
   MAX_THREAT,
   MIN_THREAT,
+  defaultDescription,
   defaultReward,
   isLocation,
+  kindFromText,
   type Location,
 } from '#/lib/bounty.ts'
 import {
@@ -65,7 +67,8 @@ export const getGlitch = createServerFn({ method: 'GET' })
   })
 
 type ReportEchoInput = {
-  description: string
+  /** Required for a sighting; optional when the report opens a new bounty. */
+  description?: string
   glitchId?: number
   /** Only used when the echo opens a new bounty. */
   targetName?: string
@@ -79,19 +82,26 @@ type ReportEchoInput = {
  */
 export const reportEcho = createServerFn({ method: 'POST' })
   .validator((data: ReportEchoInput) => {
-    const description = String(data.description ?? '').trim()
-    if (!description) throw new Error('Describe what you sensed.')
-    if (description.length > ECHO_MAX_LENGTH) {
+    const glitchId = data.glitchId == null ? undefined : parseGlitchId(data.glitchId)
+    const typed = String(data.description ?? '').trim()
+    const typedName = String(data.targetName ?? '').trim().slice(0, 80)
+    // A sighting is its text. A new bounty only needs a title or some info, not both.
+    if (!typed && glitchId !== undefined) throw new Error('Describe what you sensed.')
+    if (!typed && !typedName) throw new Error('Give it a title or describe what you saw.')
+    if (typed.length > ECHO_MAX_LENGTH) {
       throw new Error(`Keep it under ${ECHO_MAX_LENGTH} characters.`)
     }
-    const glitchId = data.glitchId == null ? undefined : parseGlitchId(data.glitchId)
 
     const threat = data.threat == null ? MIN_THREAT : Number(data.threat)
     if (!Number.isInteger(threat) || threat < MIN_THREAT || threat > MAX_THREAT) {
       throw new Error(`Threat must be from ${MIN_THREAT} to ${MAX_THREAT}.`)
     }
     if (data.location != null && !isLocation(data.location)) throw new Error('Unknown location.')
-    const targetName = String(data.targetName ?? '').trim().slice(0, 80) || DEFAULT_TARGET_NAME
+    const targetName = typedName || DEFAULT_TARGET_NAME
+    const location = data.location ?? ('central_nexus' as const)
+    const description = typed || defaultDescription(targetName, location)
+    // "criminal", "fugitive", "prisoner"… in the report make it a fugitive; anything else is an anomaly.
+    const kind = kindFromText(typedName, typed)
 
     return {
       description,
@@ -99,9 +109,9 @@ export const reportEcho = createServerFn({ method: 'POST' })
       bounty: {
         targetName,
         threat,
-        location: data.location ?? ('central_nexus' as const),
-        kind: 'ANOMALY' as const,
-        reward: defaultReward(threat, 'ANOMALY'),
+        location,
+        kind,
+        reward: defaultReward(threat, kind),
       },
     }
   })
