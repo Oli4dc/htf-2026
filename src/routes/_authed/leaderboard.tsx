@@ -92,9 +92,14 @@ function HunterItem({ hunter, isYou }: { hunter: HunterRow; isYou: boolean }) {
       </div>
 
       <dl className="flex w-full items-center justify-between gap-5 text-sm sm:w-auto sm:justify-end">
+        {/* Fugitives are captured, anomalies are fixed: two separate counts. */}
         <div className="flex flex-col items-start sm:items-end">
-          <dt className="text-muted">Captures</dt>
-          <dd className="text-lg font-semibold tabular-nums text-fg">{hunter.captures}</dd>
+          <dt className="text-muted">Captured</dt>
+          <dd className="text-lg font-semibold tabular-nums text-fg">{hunter.captured}</dd>
+        </div>
+        <div className="flex flex-col items-start sm:items-end">
+          <dt className="text-muted">Fixed</dt>
+          <dd className="text-lg font-semibold tabular-nums text-fg">{hunter.fixed}</dd>
         </div>
         <div className="flex flex-col items-start sm:items-end">
           <dt className="text-muted">Top threat</dt>

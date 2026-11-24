@@ -80,7 +80,7 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
         Kind
         <select value={kind} onChange={(e) => setKind(e.target.value as BountyKind)} className={field}>
           <option value="ANOMALY">Anomaly</option>
-          <option value="FUGITIVE">Fugitive (escaped from the Null Vault)</option>
+          <option value="FUGITIVE">Fugitive</option>
         </select>
       </label>
       <label className={label}>

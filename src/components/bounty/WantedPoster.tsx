@@ -47,7 +47,7 @@ export function WantedPoster({
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
           <span className="text-xs font-bold tracking-[0.35em] text-copper uppercase">
-            {resolved ? 'Bounty closed' : 'Wanted'}
+            {resolved ? 'Bounty closed' : fugitive ? 'Wanted' : 'Reported'}
           </span>
           {large ? (
             <h1>{title}</h1>
@@ -96,7 +96,8 @@ export function WantedPoster({
           </dd>
         </div>
         <div className="flex flex-col gap-1">
-          <dt className="text-muted">Hunter</dt>
+          {/* You hunt a fugitive; an anomaly like a fire is just assigned to someone. */}
+          <dt className="text-muted">{fugitive ? 'Hunter' : 'Assigned to'}</dt>
           <dd className="inline-flex items-center gap-1.5 text-fg">
             <Crosshair aria-hidden="true" className="size-4 text-copper" />
             {bounty.hunter ?? <span className="text-muted italic">Unclaimed</span>}
@@ -111,7 +112,7 @@ export function WantedPoster({
       </dl>
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-        <StatusPill status={bounty.status} />
+        <StatusPill status={bounty.status} kind={bounty.kind} />
         <span className="inline-flex items-center gap-3 text-sm text-muted">
           <span className="inline-flex items-center gap-1" title={`${bounty.echoCount} sightings`}>
             <MessageSquare aria-hidden="true" className="size-4" /> {bounty.echoCount}

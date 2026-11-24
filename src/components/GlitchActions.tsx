@@ -4,6 +4,7 @@ import { useServerFn } from '@tanstack/react-start'
 import { Trash2 } from 'lucide-react'
 import { statusMeta } from '#/components/StatusBadge.tsx'
 import { IconButton } from '#/components/ui/IconButton.tsx'
+import { huntLabel, type BountyKind } from '#/lib/bounty.ts'
 import { deleteGlitch, updateGlitchStatus } from '#/lib/glitches.functions.ts'
 import { GLITCH_STATUSES, formatGlitchId, type GlitchStatus } from '#/lib/glitch.ts'
 
@@ -11,10 +12,13 @@ import { GLITCH_STATUSES, formatGlitchId, type GlitchStatus } from '#/lib/glitch
 export function GlitchActions({
   glitchId,
   status,
+  kind,
   onDeleted,
 }: {
   glitchId: number
   status: GlitchStatus
+  /** Picks the words: Wanted/Captured for a fugitive, Reported/Fixed for an anomaly. */
+  kind?: BountyKind
   onDeleted?: () => void
 }) {
   const router = useRouter()
@@ -50,7 +54,7 @@ export function GlitchActions({
       >
         {GLITCH_STATUSES.map((s) => (
           <option key={s} value={s}>
-            {statusMeta[s].label}
+            {kind ? huntLabel(s, kind) : statusMeta[s].label}
           </option>
         ))}
       </select>

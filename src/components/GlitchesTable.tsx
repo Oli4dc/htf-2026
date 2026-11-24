@@ -59,8 +59,10 @@ export function GlitchesTable({
               short
               className="text-base whitespace-nowrap text-muted sm:w-20 sm:text-right"
             />
-            <StatusPill status={glitch.status} />
-            {isCommander && <GlitchActions glitchId={glitch.glitchId} status={glitch.status} />}
+            <StatusPill status={glitch.status} kind={glitch.kind} />
+            {isCommander && (
+              <GlitchActions glitchId={glitch.glitchId} status={glitch.status} kind={glitch.kind} />
+            )}
           </div>
         </li>
       ))}
