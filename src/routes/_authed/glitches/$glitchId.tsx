@@ -104,7 +104,7 @@ function BountyPage() {
 }
 
 /**
- * The four steps of the hunt. A commander can click any step;
+ * The three steps of the hunt. A commander can click any step;
  * the hunter on the bounty can click the next one.
  */
 function StatusTrack({ bounty, guardian }: { bounty: BountyDetail; guardian: Guardian }) {
@@ -149,7 +149,7 @@ function StatusTrack({ bounty, guardian }: { bounty: BountyDetail; guardian: Gua
                 : 'Claim this bounty to start the hunt'}
         </p>
       </div>
-      <ol className="grid grid-cols-4 gap-2">
+      <ol className="grid grid-cols-3 gap-2">
         {GLITCH_STATUSES.map((step, i) => {
           const done = i < currentIndex
           const current = i === currentIndex
@@ -167,7 +167,7 @@ function StatusTrack({ bounty, guardian }: { bounty: BountyDetail; guardian: Gua
                 {done ? <Check className="size-4" /> : i + 1}
               </span>
               <span className={`text-xs sm:text-sm ${current ? 'font-semibold text-fg' : 'text-muted'}`}>
-                {huntLabel(step, bounty.objective)}
+                {huntLabel(step)}
               </span>
             </>
           )

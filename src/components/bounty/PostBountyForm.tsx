@@ -9,7 +9,6 @@ import {
   MAX_THREAT,
   defaultReward,
   type BountyKind,
-  type BountyObjective,
   type Location,
 } from '#/lib/bounty.ts'
 
@@ -24,7 +23,6 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
   const [targetName, setTargetName] = useState('')
   const [description, setDescription] = useState('')
   const [kind, setKind] = useState<BountyKind>('ANOMALY')
-  const [objective, setObjective] = useState<BountyObjective>('CAPTURE')
   const [threat, setThreat] = useState(3)
   const [location, setLocation] = useState<Location>('central_nexus')
   const [reward, setReward] = useState('')
@@ -41,7 +39,6 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
           targetName,
           description,
           kind,
-          objective,
           threat,
           location,
           reward: reward === '' ? undefined : Number(reward),
@@ -88,17 +85,6 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
         </select>
       </label>
       <label className={label}>
-        Objective
-        <select
-          value={objective}
-          onChange={(e) => setObjective(e.target.value as BountyObjective)}
-          className={field}
-        >
-          <option value="CAPTURE">Capture</option>
-          <option value="BANISH">Banish</option>
-        </select>
-      </label>
-      <label className={label}>
         Threat
         <select value={threat} onChange={(e) => setThreat(Number(e.target.value))} className={field}>
           {Array.from({ length: MAX_THREAT }, (_, i) => i + 1).map((t) => (
@@ -108,7 +94,7 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
           ))}
         </select>
       </label>
-      <label className={label}>
+      <label className={`${label} sm:col-span-2`}>
         Location
         <select
           value={location}

@@ -3,7 +3,6 @@ import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 // Relative imports: drizzle-kit loads this file and doesn't resolve the `#/` alias.
 import {
   BOUNTY_KINDS,
-  BOUNTY_OBJECTIVES,
   DEFAULT_TARGET_NAME,
   LOCATIONS,
 } from '../lib/bounty.ts'
@@ -28,7 +27,11 @@ export const glitches = sqliteTable(
     timestamp: text('timestamp').notNull(),
     targetName: text('target_name').notNull().default(DEFAULT_TARGET_NAME),
     kind: text('kind', { enum: BOUNTY_KINDS }).notNull().default('ANOMALY'),
-    objective: text('objective', { enum: BOUNTY_OBJECTIVES }).notNull().default('CAPTURE'),
+    /**
+     * Unused: Capture/Banish was removed, every bounty is captured. Kept so
+     * existing databases need no migration; drop it in a planned schema change.
+     */
+    objective: text('objective').notNull().default('CAPTURE'),
     /** In shards. */
     reward: integer('reward').notNull().default(100),
     /** 1-5, checked on the server. */

@@ -11,14 +11,12 @@ import {
   MIN_THREAT,
   defaultReward,
   isBountyKind,
-  isBountyObjective,
   isLocation,
   nextStatus,
   rankTitle,
   type Bounty,
   type BountyDetail,
   type BountyKind,
-  type BountyObjective,
   type HunterRow,
   type Location,
 } from '#/lib/bounty.ts'
@@ -76,7 +74,6 @@ const bountyColumns = {
   timestamp: glitches.timestamp,
   targetName: glitches.targetName,
   kind: glitches.kind,
-  objective: glitches.objective,
   reward: glitches.reward,
   threat: glitches.threat,
   location: glitches.location,
@@ -277,7 +274,6 @@ type PostBountyInput = {
   targetName: string
   description: string
   kind: BountyKind
-  objective: BountyObjective
   threat: number
   location: Location
   reward?: number
@@ -287,14 +283,12 @@ type PostBountyInput = {
 export const postBounty = createServerFn({ method: 'POST' })
   .validator((data: PostBountyInput) => {
     if (!isBountyKind(data.kind)) throw new Error('Unknown kind.')
-    if (!isBountyObjective(data.objective)) throw new Error('Unknown objective.')
     if (!isLocation(data.location)) throw new Error('Unknown location.')
     const threat = parseThreat(data.threat)
     return {
       targetName: parseText(data.targetName, 'Target name', 80),
       description: parseText(data.description, 'Description', ECHO_MAX_LENGTH),
       kind: data.kind,
-      objective: data.objective,
       threat,
       location: data.location,
       reward:

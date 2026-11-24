@@ -84,7 +84,7 @@ export function BountyActions({
             onClick={() => run(() => advance({ data: { glitchId: bounty.glitchId } }))}
             className={canClaim ? secondary : primary}
           >
-            <ChevronsRight className="size-4" /> {huntLabel(next, bounty.objective)}
+            <ChevronsRight className="size-4" /> {huntLabel(next)}
           </button>
         )}
         {showSighting && (
