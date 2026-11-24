@@ -1,13 +1,18 @@
 import { useState } from 'react'
 import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import { ArrowLeft, Check, Shield, ShieldCheck, Trash2 } from 'lucide-react'
+import { ArrowLeft, Check, MapPin, Shield, ShieldCheck, Trash2 } from 'lucide-react'
 import { EchoForm } from '#/components/EchoForm.tsx'
 import { StatusBadge, statusMeta } from '#/components/StatusBadge.tsx'
 import { Card } from '#/components/ui/Card.tsx'
 import { TimeAgo, formatAbsolute } from '#/components/ui/TimeAgo.tsx'
 import { deleteGlitch, getGlitch, updateGlitchStatus } from '#/lib/glitches.functions.ts'
-import { GLITCH_STATUSES, formatGlitchId, type GlitchStatus } from '#/lib/glitch.ts'
+import {
+  GLITCH_STATUSES,
+  formatGlitchId,
+  locationLabel,
+  type GlitchStatus,
+} from '#/lib/glitch.ts'
 
 export const Route = createFileRoute('/_authed/glitches/$glitchId')({
   loader: ({ params }) => getGlitch({ data: Number(params.glitchId) }),
@@ -35,6 +40,10 @@ function GlitchPage() {
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-xl font-semibold text-accent">{label}</span>
           <StatusBadge status={glitch.status} />
+          <span className="inline-flex items-center gap-1 text-sm text-accent">
+            <MapPin className="size-4" />
+            {locationLabel[glitch.location]}
+          </span>
           <span className="text-sm text-muted" suppressHydrationWarning>
             Opened {formatAbsolute(glitch.timestamp)}
           </span>

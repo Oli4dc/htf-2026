@@ -7,8 +7,10 @@ import { requireCommander, requireGuardian } from '#/lib/auth.server.ts'
 import {
   ECHO_MAX_LENGTH,
   computeMagicLevel,
+  isGlitchLocation,
   isGlitchStatus,
   type GlitchDetail,
+  type GlitchLocation,
   type GlitchStatus,
   type GlitchSummary,
 } from '#/lib/glitch.ts'
@@ -55,9 +57,9 @@ export const getGlitch = createServerFn({ method: 'GET' })
     return { ...glitch, echoes: glitchEchoes }
   })
 
-type ReportEchoInput = { description: string; glitchId?: number }
+type ReportEchoInput = { description: string; glitchId?: number; location?: GlitchLocation }
 
-/** Without glitchId the echo opens a new glitch; with it, the echo is attached. */
+/** Without glitchId the echo opens a new glitch at `location`; with it, the echo is attached. */
 export const reportEcho = createServerFn({ method: 'POST' })
   .validator((data: ReportEchoInput) => {
     const description = String(data.description ?? '').trim()
@@ -66,7 +68,11 @@ export const reportEcho = createServerFn({ method: 'POST' })
       throw new Error(`Keep it under ${ECHO_MAX_LENGTH} characters.`)
     }
     const glitchId = data.glitchId == null ? undefined : parseGlitchId(data.glitchId)
-    return { description, glitchId }
+    // A new glitch needs to know where in Achrona it is.
+    if (glitchId === undefined && !isGlitchLocation(data.location)) {
+      throw new Error('Choose where in Achrona this is happening.')
+    }
+    return { description, glitchId, location: data.location }
   })
   .handler(async ({ data }): Promise<{ glitchId: number }> => {
     // Reporter always comes from the session, never from the client.
@@ -78,7 +84,7 @@ export const reportEcho = createServerFn({ method: 'POST' })
       if (glitchId === undefined) {
         glitchId = tx
           .insert(glitches)
-          .values({ description: data.description, timestamp })
+          .values({ description: data.description, location: data.location, timestamp })
           .returning({ glitchId: glitches.glitchId })
           .get().glitchId
       } else {

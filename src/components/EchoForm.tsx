@@ -2,9 +2,14 @@ import { useState, type FormEvent } from 'react'
 import { useServerFn } from '@tanstack/react-start'
 import { Send } from 'lucide-react'
 import { reportEcho } from '#/lib/glitches.functions.ts'
-import { ECHO_MAX_LENGTH } from '#/lib/glitch.ts'
+import {
+  ECHO_MAX_LENGTH,
+  GLITCH_LOCATIONS,
+  locationLabel,
+  type GlitchLocation,
+} from '#/lib/glitch.ts'
 
-/** Without glitchId the echo opens a new glitch. */
+/** Without glitchId the echo opens a new glitch, and asks where it is. */
 export function EchoForm({
   glitchId,
   placeholder = 'What did you sense? Where in Achrona?',
@@ -18,6 +23,8 @@ export function EchoForm({
 }) {
   const report = useServerFn(reportEcho)
   const [description, setDescription] = useState('')
+  const [location, setLocation] = useState<GlitchLocation | ''>('')
+  const needsLocation = glitchId === undefined
   const [error, setError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
 
@@ -26,8 +33,11 @@ export function EchoForm({
     setSending(true)
     setError(null)
     try {
-      const result = await report({ data: { description, glitchId } })
+      const result = await report({
+        data: { description, glitchId, location: location || undefined },
+      })
       setDescription('')
+      setLocation('')
       await onReported(result.glitchId)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'The echo got lost. Try again.')
@@ -40,6 +50,26 @@ export function EchoForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      {needsLocation && (
+        <label className="flex flex-col gap-1.5">
+          <span className="text-base font-medium text-fg">Where in Achrona?</span>
+          <select
+            value={location}
+            onChange={(e) => setLocation(e.target.value as GlitchLocation | '')}
+            required
+            className="w-full rounded-xl border border-line bg-app/60 px-4 py-3 text-base text-fg focus:border-accent focus:ring-4 focus:ring-glow focus:outline-none"
+          >
+            <option value="" disabled>
+              Choose an area…
+            </option>
+            {GLITCH_LOCATIONS.map((value) => (
+              <option key={value} value={value}>
+                {locationLabel[value]}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
@@ -58,7 +88,7 @@ export function EchoForm({
         </p>
         <button
           type="submit"
-          disabled={sending || !description.trim() || tooLong}
+          disabled={sending || !description.trim() || tooLong || (needsLocation && !location)}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-copper px-5 py-3 text-lg font-bold text-copper-ink shadow-md shadow-black/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Send className="size-4" />

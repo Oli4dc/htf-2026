@@ -1,7 +1,7 @@
 import { relations } from 'drizzle-orm'
 import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 // Relative imports: drizzle-kit loads this file and doesn't resolve the `#/` alias.
-import { GLITCH_STATUSES } from '../lib/glitch.ts'
+import { GLITCH_LOCATIONS, GLITCH_STATUSES } from '../lib/glitch.ts'
 import { GUARDIAN_ROLES } from '../lib/guardian.ts'
 
 export const guardians = sqliteTable('guardians', {
@@ -15,6 +15,8 @@ export const glitches = sqliteTable('glitches', {
   glitchId: integer('glitch_id').primaryKey({ autoIncrement: true }),
   status: text('status', { enum: GLITCH_STATUSES }).notNull().default('LEAKED'),
   description: text('description').notNull(),
+  /** Area of Achrona. The default only exists so the column can be added to a filled table. */
+  location: text('location', { enum: GLITCH_LOCATIONS }).notNull().default('central_nexus'),
   /** ISO 8601, so lexical order is chronological order. */
   timestamp: text('timestamp').notNull(),
 })

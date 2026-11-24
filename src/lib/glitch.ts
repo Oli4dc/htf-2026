@@ -12,9 +12,35 @@ export function isGlitchStatus(value: unknown): value is GlitchStatus {
   return GLITCH_STATUSES.includes(value as GlitchStatus)
 }
 
+/** Areas of Achrona. The keys are shared with the Roblox client: do not rename them. */
+export const GLITCH_LOCATIONS = [
+  'central_nexus',
+  'crystal_spire',
+  'citadel',
+  'portal_gate',
+  'archive',
+  'forge',
+] as const
+
+export type GlitchLocation = (typeof GLITCH_LOCATIONS)[number]
+
+export const locationLabel: Record<GlitchLocation, string> = {
+  central_nexus: 'Central Nexus',
+  crystal_spire: 'Crystal Spire',
+  citadel: 'Citadel',
+  portal_gate: 'Portal Gate',
+  archive: 'Archive',
+  forge: 'Forge',
+}
+
+export function isGlitchLocation(value: unknown): value is GlitchLocation {
+  return GLITCH_LOCATIONS.includes(value as GlitchLocation)
+}
+
 export type Glitch = {
   glitchId: number
   status: GlitchStatus
+  location: GlitchLocation
   description: string
   /** ISO 8601 */
   timestamp: string

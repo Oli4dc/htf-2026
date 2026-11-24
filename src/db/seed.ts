@@ -22,54 +22,57 @@ const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000).
 type SeedGlitch = {
   id: number
   status: (typeof glitches.$inferInsert)['status']
+  location: (typeof glitches.$inferInsert)['location']
   /** [guardianId, minutesAgo, description]; the first echo opens the glitch. */
   echoes: [number, number, string][]
 }
 
+// One LEAKED (12) + one ASSESSING (8) + one CONTAINING (4): the demo starts at 76% magic,
+// just above the first crack threshold, so the next echo visibly cracks the orb.
 const seedGlitches: SeedGlitch[] = [
-  { id: 131, status: 'FIXED', echoes: [
+  { id: 131, status: 'FIXED', location: 'crystal_spire', echoes: [
     [NYX, 4320, 'Echo sensors in the Lantern Quarter report every signal twice'],
     [EMBER, 4200, 'Duplicates traced to a mirrored rune on relay 7'],
     [WARDEN, 4100, 'Rune scrubbed and relay recalibrated. Signals single again'],
   ] },
-  { id: 132, status: 'FIXED', echoes: [
+  { id: 132, status: 'FIXED', location: 'central_nexus', echoes: [
     [EMBER, 3600, 'Fountain in Gilded Square flows upwards for ten seconds every hour'],
     [NYX, 3500, 'Gravity ward on the fountain was out of sync with the city clock'],
   ] },
-  { id: 133, status: 'CONTAINING', echoes: [
+  { id: 133, status: 'FIXED', location: 'archive', echoes: [
     [NYX, 2880, 'Portal flicker in the archive vaults; books arrive before they are requested'],
     [EMBER, 2700, 'Flicker spreads to the lower stacks. Sealed the vault doors'],
     [NYX, 1500, 'Containment wards holding, flicker down to once per hour'],
   ] },
-  { id: 134, status: 'ASSESSING', echoes: [
+  { id: 134, status: 'FIXED', location: 'forge', echoes: [
     [EMBER, 2160, 'Magic reserves in the Northern Wells dropping faster than expected'],
     [NYX, 2000, 'Drain is steady at 3% per hour, no visible leak'],
   ] },
-  { id: 135, status: 'FIXED', echoes: [
+  { id: 135, status: 'FIXED', location: 'citadel', echoes: [
     [NYX, 1800, 'Street lamps on Ashen Row light up at noon and go dark at night'],
   ] },
-  { id: 136, status: 'CONTAINING', echoes: [
+  { id: 136, status: 'CONTAINING', location: 'portal_gate', echoes: [
     [EMBER, 1440, 'Ferry across the Silver Canal arrives at the dock it just left'],
     [WARDEN, 1300, 'Ferry suspended. Defenders posted at both docks'],
   ] },
-  { id: 137, status: 'ASSESSING', echoes: [
+  { id: 137, status: 'FIXED', location: 'central_nexus', echoes: [
     [NYX, 720, 'Market merchants repeat the same sentence over and over'],
     [EMBER, 650, 'Loop lasts 40 seconds and resets on the bell of the clock tower'],
   ] },
-  { id: 138, status: 'LEAKED', echoes: [
+  { id: 138, status: 'FIXED', location: 'forge', echoes: [
     [EMBER, 360, 'Shadows in the Old Orchard move a second after their owners'],
   ] },
-  { id: 139, status: 'LEAKED', echoes: [
+  { id: 139, status: 'FIXED', location: 'citadel', echoes: [
     [NYX, 180, 'Dragon statue at the city gate blinked. Twice'],
     [EMBER, 120, 'Confirmed: statue eyes follow passing guardians'],
   ] },
-  { id: 140, status: 'ASSESSING', echoes: [
+  { id: 140, status: 'ASSESSING', location: 'crystal_spire', echoes: [
     [EMBER, 90, 'Snow falling upwards above the Crystal Observatory'],
   ] },
-  { id: 141, status: 'LEAKED', echoes: [
+  { id: 141, status: 'FIXED', location: 'archive', echoes: [
     [NYX, 45, 'Messenger ravens deliver letters that have not been written yet'],
   ] },
-  { id: 142, status: 'LEAKED', echoes: [
+  { id: 142, status: 'LEAKED', location: 'citadel', echoes: [
     [EMBER, 12, 'Time loop detected near the eastern clock tower'],
     [NYX, 5, 'Clock tower bells ring thirteen times. The Desync is spreading'],
   ] },
@@ -91,6 +94,7 @@ db.transaction((tx) => {
       .values({
         glitchId: glitch.id,
         status: glitch.status,
+        location: glitch.location,
         description: openingDescription,
         timestamp: minutesAgo(openedMinutesAgo),
       })

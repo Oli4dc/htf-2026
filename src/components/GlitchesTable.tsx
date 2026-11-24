@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { MessageSquare } from 'lucide-react'
+import { MapPin, MessageSquare } from 'lucide-react'
 import { GlitchActions } from '#/components/GlitchActions.tsx'
 import { StatusPill } from '#/components/StatusBadge.tsx'
 import { TimeAgo } from '#/components/ui/TimeAgo.tsx'
-import { formatGlitchId, type GlitchSummary } from '#/lib/glitch.ts'
+import { formatGlitchId, locationLabel, type GlitchSummary } from '#/lib/glitch.ts'
 
 /** Flat glitch rows of the dashboard. Commanders also get status and delete controls. */
 export function GlitchesTable({
@@ -35,6 +35,10 @@ export function GlitchesTable({
           >
             <span className="text-xl font-semibold text-fg">{formatGlitchId(glitch.glitchId)}</span>
             <span className="text-base text-muted">{glitch.description}</span>
+            <span className="mt-0.5 inline-flex items-center gap-1 text-sm text-accent">
+              <MapPin className="size-3.5" />
+              {locationLabel[glitch.location]}
+            </span>
           </Link>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:flex-nowrap sm:justify-end">

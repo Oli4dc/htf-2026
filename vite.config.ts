@@ -17,6 +17,8 @@ const IGNORED_SERVER_WARNINGS = new Set([
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  // Lets the dev server answer through a Cloudflare quick tunnel (public demo URL).
+  server: { allowedHosts: ['.trycloudflare.com'] },
   plugins: [
     devtools(),
     nitro({
