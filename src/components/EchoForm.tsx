@@ -47,11 +47,11 @@ export function EchoForm({
         rows={5}
         required
         aria-label="Echo description"
-        className="w-full resize-y rounded-2xl border border-line bg-white px-4 py-3 text-base text-fg placeholder:text-muted/70 focus:border-accent focus:ring-4 focus:ring-glow focus:outline-none"
+        className="w-full resize-y rounded-2xl border border-line bg-app/60 px-4 py-3 text-base text-fg placeholder:text-muted/70 focus:border-accent focus:ring-4 focus:ring-glow focus:outline-none"
       />
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p
-          className={`text-sm ${error || tooLong ? 'text-red-600' : 'text-muted'}`}
+          className={`text-sm ${error || tooLong ? 'text-red-300' : 'text-muted'}`}
           role={error ? 'alert' : undefined}
         >
           {error ?? `${description.length}/${ECHO_MAX_LENGTH} · the time is set automatically`}
@@ -59,7 +59,7 @@ export function EchoForm({
         <button
           type="submit"
           disabled={sending || !description.trim() || tooLong}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-br from-accent-from to-accent-to px-5 py-3 font-medium text-white shadow-md shadow-glow transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-copper px-5 py-3 text-lg font-bold text-copper-ink shadow-md shadow-black/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Send className="size-4" />
           {sending ? 'Sending…' : submitLabel}

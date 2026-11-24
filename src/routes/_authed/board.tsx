@@ -58,7 +58,7 @@ function BoardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl font-semibold text-fg">Glitch board</h1>
+        <h1 className="font-heading text-4xl text-fg sm:text-5xl">Glitch board</h1>
         <p className="mt-1 text-muted">
           {isCommander
             ? 'Drag a glitch to another column, or use the arrows, to move it through containment.'
@@ -67,7 +67,7 @@ function BoardPage() {
       </div>
 
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p role="alert" className="rounded-lg bg-red-500/15 px-4 py-3 text-base text-red-200">
           {error}
         </p>
       )}
@@ -90,7 +90,7 @@ function BoardPage() {
               onDragLeave={() => setDragOver((s) => (s === status ? null : s))}
               onDrop={isCommander ? (e) => handleDrop(e, status) : undefined}
               className={`flex w-[80vw] max-w-xs shrink-0 snap-center flex-col gap-3 rounded-2xl border p-3 transition-colors lg:w-auto lg:max-w-none ${
-                dragOver === status ? 'border-accent bg-glow' : 'border-line bg-subtle'
+                dragOver === status ? 'border-accent bg-glow' : 'border-line bg-panel'
               }`}
             >
               <header className="flex items-center justify-between px-1">
@@ -146,7 +146,7 @@ function BoardCard({
         e.dataTransfer.setData('text/plain', String(glitch.glitchId))
         e.dataTransfer.effectAllowed = 'move'
       }}
-      className={`flex flex-col gap-2 rounded-xl border border-line bg-card p-3 shadow-sm ${
+      className={`flex flex-col gap-2 rounded-xl border border-white/10 bg-app/50 p-3 ${
         canMove ? 'cursor-grab active:cursor-grabbing' : ''
       } ${busy ? 'opacity-60' : ''}`}
     >
@@ -156,10 +156,10 @@ function BoardCard({
         draggable={false}
         className="flex flex-col gap-1"
       >
-        <span className="font-mono text-sm font-medium text-accent">
+        <span className="text-lg font-semibold text-fg">
           {formatGlitchId(glitch.glitchId)}
         </span>
-        <span className="text-sm text-fg">{glitch.description}</span>
+        <span className="text-base text-muted">{glitch.description}</span>
       </Link>
 
       <div className="flex items-center justify-between text-sm text-muted">

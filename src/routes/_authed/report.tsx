@@ -13,11 +13,11 @@ function ReportPage() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <div className="flex items-start gap-4">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-accent-from to-accent-to text-white shadow-md shadow-glow">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-line bg-panel text-mint">
           <RadioTower className="size-6" />
         </span>
         <div>
-          <h1 className="text-2xl font-semibold text-fg sm:text-3xl">Report an echo</h1>
+          <h1 className="font-heading text-4xl text-fg sm:text-5xl">Report an echo</h1>
           <p className="mt-1 text-muted">
             Sensed something off in Achrona? Your echo opens a new glitch so the guardians can
             respond.

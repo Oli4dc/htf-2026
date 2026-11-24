@@ -7,6 +7,8 @@ import type { Guardian } from '#/lib/guardian.ts'
 const navClass =
   'rounded-lg px-3 py-2 text-base font-medium text-muted transition-colors hover:bg-subtle hover:text-fg'
 
+const navActiveClass = 'bg-subtle text-fg'
+
 /** Top bar of the Achrona night theme (design/dashboard.png). */
 export function TopBar({ guardian }: { guardian: Guardian }) {
   const router = useRouter()
@@ -27,9 +29,16 @@ export function TopBar({ guardian }: { guardian: Guardian }) {
             Achrona Mission Control
           </span>
         </Link>
+        {/* New pages: add a link here. */}
         <nav className="flex items-center gap-1">
-          <Link to="/board" className={navClass}>
+          <Link to="/" className={navClass} activeOptions={{ exact: true }} activeProps={{ className: navActiveClass }}>
+            Dashboard
+          </Link>
+          <Link to="/board" className={navClass} activeProps={{ className: navActiveClass }}>
             Board
+          </Link>
+          <Link to="/report" className={navClass} activeProps={{ className: navActiveClass }}>
+            Report echo
           </Link>
         </nav>
       </div>

@@ -33,7 +33,7 @@ function GlitchPage() {
 
       <header className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="font-mono text-lg font-medium text-accent">{label}</span>
+          <span className="text-xl font-semibold text-accent">{label}</span>
           <StatusBadge status={glitch.status} />
           <span className="text-sm text-muted" suppressHydrationWarning>
             Opened {formatAbsolute(glitch.timestamp)}
@@ -53,7 +53,7 @@ function GlitchPage() {
             const RoleIcon = echo.guardian.role === 'commander' ? ShieldCheck : Shield
             return (
               <li key={echo.echoId} className="relative">
-                <span className="absolute top-1.5 -left-[31px] size-3 rounded-full border-2 border-white bg-accent ring-2 ring-glow" />
+                <span className="absolute top-1.5 -left-[31px] size-3 rounded-full border-2 border-app bg-accent ring-2 ring-glow" />
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                   <span className="inline-flex items-center gap-1 font-medium text-fg">
                     <RoleIcon className="size-4 text-accent" />
@@ -127,7 +127,7 @@ function StatusTracker({
               <span
                 className={`flex size-8 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
                   current
-                    ? 'bg-linear-to-br from-accent-from to-accent-to text-white shadow-md shadow-glow'
+                    ? 'bg-mint text-copper-ink shadow-md shadow-glow'
                     : done
                       ? 'bg-accent/15 text-accent'
                       : 'bg-subtle text-muted'
@@ -180,15 +180,15 @@ function DangerZone({ glitchId, label }: { glitchId: number; label: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50/50 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+    <div className="flex flex-col gap-3 rounded-2xl border border-red-400/40 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
       <div>
-        <h2 className="font-semibold text-red-800">Commander zone</h2>
-        <p className="text-sm text-red-700/80">Erase this glitch and all its echoes.</p>
+        <h2 className="font-semibold text-red-200">Commander zone</h2>
+        <p className="text-base text-red-200/80">Erase this glitch and all its echoes.</p>
       </div>
       <button
         type="button"
         onClick={handleDelete}
-        className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-300 bg-white px-4 py-2.5 font-medium text-red-700 transition-colors hover:bg-red-600 hover:text-white"
+        className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-400/60 px-4 py-2.5 font-medium text-red-200 transition-colors hover:bg-red-600 hover:text-white"
       >
         <Trash2 className="size-4" /> Delete glitch
       </button>
@@ -199,7 +199,7 @@ function DangerZone({ glitchId, label }: { glitchId: number; label: string }) {
 function GlitchNotFound() {
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center">
-      <h1 className="text-2xl font-semibold text-fg">This glitch has vanished</h1>
+      <h1 className="font-heading text-4xl text-fg">This glitch has vanished</h1>
       <p className="text-muted">It may have been erased by a commander, or it never existed.</p>
       <Link to="/" className="font-medium text-accent hover:underline">
         Back to all glitches

@@ -18,8 +18,8 @@ Reset the demo data at any time with `npm run db:seed`.
 
 ## 2. Rules for sharing one branch
 
-- **Don't touch:** `src/db/schema.ts`, `src/lib/glitches.functions.ts`, `src/routes/_authed/index.tsx`, `src/components/GlitchesTable.tsx`, `src/styles.css`, `src/components/layout/AppHeader.tsx`. Need a database column? Ask first.
-- **Shared files:** `Sidebar.tsx`, `_authed.tsx`. Only add **one line** each (an import plus a usage, or one nav item).
+- **Don't touch:** `src/db/schema.ts`, `src/lib/glitches.functions.ts`, `src/routes/_authed/index.tsx`, `src/components/GlitchesTable.tsx`, `src/styles.css`, `src/components/layout/TopBar.tsx` (except adding a nav link). Need a database column? Ask first.
+- **Shared files:** `TopBar.tsx`, `_authed.tsx`. Only add **one line** each (an import plus a usage, or one nav item).
 - `git pull --rebase` before every push. Commit small and often.
 - Conflict in `src/routeTree.gen.ts`? It's generated: take either side, run `npm run dev`, and it rebuilds itself.
 - After pulling a schema change: `npm run db:setup`.
@@ -83,8 +83,9 @@ function LeaderboardPage() {
 - `<Card>` in `src/components/ui/Card.tsx`, `<IconButton>` in `src/components/ui/IconButton.tsx`
 
 **Styling**: use the theme colour classes instead of fixed colours, so dark mode and lockdown work later:
-`bg-app` `bg-card` `bg-subtle` `border-line` `text-fg` `text-muted` `text-accent` `bg-sidebar` `shadow-glow`.
-Main button: `rounded-xl bg-linear-to-br from-accent-from to-accent-to px-5 py-3 font-medium text-white shadow-md shadow-glow hover:brightness-110`.
+`bg-app` `bg-panel` `bg-subtle` `border-line` `text-fg` `text-muted` `text-accent` `text-mint` `shadow-glow`. The app now has a dark "Achrona night" theme: never use `bg-white` or light colours like `bg-red-50`.
+Panel: `rounded-2xl border border-line bg-panel p-6`. Page title: `font-heading text-4xl text-fg` (Pirata One).
+Main button: `rounded-xl bg-copper px-5 py-3 text-lg font-bold text-copper-ink hover:brightness-110`.
 Mobile first: it must look good at phone width (we demo on a phone).
 
 **Tone:** all code and comments in English. UI text stays in the world of Achrona: *guardians, glitches, echoes, The Desync, the High Council, magic*.
@@ -108,7 +109,7 @@ A visual meter of the magic level in Achrona.
 A ranking with badges for the most active defenders.
 - New `src/lib/leaderboard.functions.ts` (GET, `requireGuardian()` first): per guardian → codename, role, number of echoes reported, number of glitches they opened (= their echo was the first one on the glitch).
 - New `src/routes/_authed/leaderboard.tsx`: podium for the top 3 + list. Badges from simple rules, for example: *First Responder* (opened the most glitches), *Echo Hunter* (10+ echoes), *Night Watch* (an echo between 00:00 and 06:00). Highlight the logged-in guardian.
-- One nav item in `src/components/layout/Sidebar.tsx` (lucide icon `Trophy`) and add `'/leaderboard'` to the `to` type there.
+- One nav link in `src/components/layout/TopBar.tsx` (copy the `Board` link).
 - Later, once glitch assignment exists, we'll add "glitches fixed".
 
 ### Task 3: Map of Achrona (SVG) + map component
@@ -122,7 +123,7 @@ Export the key data as a PDF.
 - New `src/lib/council-report.functions.ts` (GET, `requireGuardian()`): counts per status, open glitches with their echo count, the 5 most recent echoes, the most active guardian.
 - New `src/routes/_authed/council-report.tsx`: a formal "Report to the High Council of Achrona" page (date, summary, tables) with a **"Download PDF"** button that calls `window.print()`. The browser's *Save as PDF* does the rest, so no package is needed.
 - Print styling with Tailwind `print:` classes: hide the sidebar, header and button (`print:hidden`), white background, black text.
-- Link to it with one nav item in `Sidebar.tsx` (icon `ScrollText`).
+- Link to it with one nav link in `TopBar.tsx`.
 
 ### Task 5: Keyboard shortcuts
 - New `src/lib/useShortcuts.ts` hook + `src/components/ShortcutsHelp.tsx` overlay. Mount both with one line in `src/routes/_authed.tsx`.

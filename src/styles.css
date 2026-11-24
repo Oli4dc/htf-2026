@@ -7,7 +7,6 @@
 
   --color-app: var(--app);
   --color-topbar: var(--topbar);
-  --color-sidebar: var(--sidebar);
   --color-panel: var(--panel);
   --color-card: var(--card);
   --color-card-strong: var(--card-strong);
@@ -26,35 +25,8 @@
   --color-copper-ink: var(--copper-ink);
 }
 
+/* Achrona night theme (design/dashboard.png). Change a colour here and every page follows. */
 :root {
-  --app: #ffffff;
-  --topbar: #ffffff;
-  --sidebar: #1b1340;
-  --panel: #ffffff;
-  --card: #ffffff;
-  --card-strong: #f5f4f2;
-  --line: #eae7e4;
-  --fg: #0c0c14;
-  --muted: #706d6b;
-  --subtle: #f5f4f2;
-  --subtle-hover: #eae7e4;
-  --accent: #6d4aff;
-  --accent-from: #a995ff;
-  --accent-to: #6d4aff;
-  --glow: rgb(109 74 255 / 0.2);
-  --mint: #6fe0c8;
-  --cyan: #35d6e6;
-  --copper: #c9713f;
-  --copper-ink: #1a0f08;
-  color-scheme: light;
-}
-
-/*
- * Achrona night theme (design/dashboard.png).
- * Put the class on a wrapper: every token-based class inside follows.
- * Only the dashboard uses it for now; the other pages follow later.
- */
-.theme-achrona {
   --app: #130d24;
   --topbar: #1c1533;
   --panel: #2b2a45;
@@ -69,8 +41,10 @@
   --accent-from: #6fe0c8;
   --accent-to: #35d6e6;
   --glow: rgb(53 214 230 / 0.2);
-  background-color: var(--app);
-  color: var(--fg);
+  --mint: #6fe0c8;
+  --cyan: #35d6e6;
+  --copper: #c9713f;
+  --copper-ink: #1a0f08;
   color-scheme: dark;
 }
 

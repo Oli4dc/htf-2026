@@ -58,7 +58,7 @@ export function GlitchActions({
         aria-label={`Delete ${label}`}
         title={`Delete ${label}`}
         disabled={busy}
-        className="size-9 rounded-lg hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+        className="size-9 rounded-lg hover:bg-red-500/20 hover:text-red-300 disabled:opacity-50"
         onClick={() => {
           if (!confirm(`Erase ${label} and all its echoes from the records?`)) return
           run(async () => {
