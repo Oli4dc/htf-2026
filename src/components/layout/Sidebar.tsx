@@ -1,14 +1,15 @@
 import { Link } from '@tanstack/react-router'
-import { Activity, LayoutGrid, RadioTower, type LucideIcon } from 'lucide-react'
+import { Activity, LayoutGrid, RadioTower, SquareKanban, type LucideIcon } from 'lucide-react'
 
 type NavItem = {
   label: string
   icon: LucideIcon
-  to: '/' | '/report'
+  to: '/' | '/board' | '/report'
 }
 
 const navItems: NavItem[] = [
   { label: 'Overview', icon: LayoutGrid, to: '/' },
+  { label: 'Glitch board', icon: SquareKanban, to: '/board' },
   { label: 'Report echo', icon: RadioTower, to: '/report' },
 ]
 

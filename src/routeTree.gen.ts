@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
+import { Route as AuthedBoardRouteImport } from './routes/_authed/board'
 import { Route as AuthedReportRouteImport } from './routes/_authed/report'
 import { Route as AuthedGlitchesGlitchIdRouteImport } from './routes/_authed/glitches/$glitchId'
 
@@ -29,6 +30,11 @@ const AuthedIndexRoute = AuthedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedBoardRoute = AuthedBoardRouteImport.update({
+  id: '/board',
+  path: '/board',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedReportRoute = AuthedReportRouteImport.update({
   id: '/report',
   path: '/report',
@@ -43,11 +49,13 @@ const AuthedGlitchesGlitchIdRoute = AuthedGlitchesGlitchIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
+  '/board': typeof AuthedBoardRoute
   '/report': typeof AuthedReportRoute
   '/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/board': typeof AuthedBoardRoute
   '/report': typeof AuthedReportRoute
   '/': typeof AuthedIndexRoute
   '/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
@@ -56,19 +64,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authed/board': typeof AuthedBoardRoute
   '/_authed/report': typeof AuthedReportRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/report' | '/glitches/$glitchId'
+  fullPaths: '/' | '/login' | '/board' | '/report' | '/glitches/$glitchId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/report' | '/' | '/glitches/$glitchId'
+  to: '/login' | '/board' | '/report' | '/' | '/glitches/$glitchId'
   id:
     | '__root__'
     | '/_authed'
     | '/login'
+    | '/_authed/board'
     | '/_authed/report'
     | '/_authed/'
     | '/_authed/glitches/$glitchId'
@@ -102,6 +112,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/board': {
+      id: '/_authed/board'
+      path: '/board'
+      fullPath: '/board'
+      preLoaderRoute: typeof AuthedBoardRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/report': {
       id: '/_authed/report'
       path: '/report'
@@ -120,12 +137,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedRouteChildren {
+  AuthedBoardRoute: typeof AuthedBoardRoute
   AuthedReportRoute: typeof AuthedReportRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedGlitchesGlitchIdRoute: typeof AuthedGlitchesGlitchIdRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedBoardRoute: AuthedBoardRoute,
   AuthedReportRoute: AuthedReportRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedGlitchesGlitchIdRoute: AuthedGlitchesGlitchIdRoute,

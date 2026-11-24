@@ -95,6 +95,8 @@ Mobile first: it must look good at phone width (we demo on a phone).
 
 ## 4. Tasks, in this order
 
+**Working features first, looks later.** Keep styling simple; the whole team does a layout/polish pass at the end.
+
 ### Task 1: Magic gauge component (needed by the core team soon)
 A visual meter of the magic level in Achrona.
 - New `src/components/MagicGauge.tsx`: `<MagicGauge level={72} />` where `level` is 0–100.
