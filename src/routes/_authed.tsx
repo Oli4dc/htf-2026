@@ -2,6 +2,7 @@ import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 import { AppHeader } from '#/components/layout/AppHeader.tsx'
 import { Sidebar } from '#/components/layout/Sidebar.tsx'
 import { getCurrentGuardian } from '#/lib/auth.functions.ts'
+import { useLiveUpdates } from '#/lib/useLiveUpdates.ts'
 
 // Pathless layout: every route inside src/routes/_authed/ needs a session.
 // This only guards pages; each server function checks the session again.
@@ -16,6 +17,7 @@ export const Route = createFileRoute('/_authed')({
 
 function AuthedLayout() {
   const { guardian } = Route.useRouteContext()
+  useLiveUpdates()
 
   return (
     <div className="flex min-h-screen">
