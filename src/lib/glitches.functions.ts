@@ -108,6 +108,10 @@ export const reportEcho = createServerFn({ method: 'POST' })
   .handler(async ({ data }): Promise<{ glitchId: number }> => {
     // Reporter always comes from the session, never from the client.
     const guardian = requireGuardian()
+    // Only commanders open new bounties; defenders add sightings to existing ones.
+    if (data.glitchId === undefined && guardian.role !== 'commander') {
+      throw new Error('Only commanders can report a new criminal. Add a sighting to a bounty instead.')
+    }
     const timestamp = new Date().toISOString()
 
     return db.transaction((tx) => {

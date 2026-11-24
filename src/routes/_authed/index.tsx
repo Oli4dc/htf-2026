@@ -21,11 +21,12 @@ function DashboardPage() {
       {/* Right column on desktop; first on phones. */}
       <div className="flex flex-col gap-6 lg:order-last">
         <MagicPanel level={magicLevel} captured={glitches.length - open} total={glitches.length} />
+        {/* Commanders open new bounties; defenders go hunt the existing ones. */}
         <Link
-          to="/report"
+          to={guardian.role === 'commander' ? '/report' : '/bounties'}
           className="flex w-full items-center justify-center rounded-xl bg-copper px-6 py-5 text-2xl font-bold text-copper-ink shadow-lg shadow-black/30 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mint"
         >
-          Report criminal
+          {guardian.role === 'commander' ? 'Report criminal' : 'Hunt a bounty'}
         </Link>
       </div>
 

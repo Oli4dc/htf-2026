@@ -1,11 +1,15 @@
 import { useCallback, useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { RadioTower } from 'lucide-react'
 import { CriminalAlarm } from '#/components/CriminalAlarm.tsx'
 import { EchoForm } from '#/components/EchoForm.tsx'
 import { Card } from '#/components/ui/Card.tsx'
 
 export const Route = createFileRoute('/_authed/report')({
+  // Only commanders open new bounties; the server checks this again.
+  beforeLoad: ({ context }) => {
+    if (context.guardian.role !== 'commander') throw redirect({ to: '/bounties' })
+  },
   component: ReportPage,
 })
 

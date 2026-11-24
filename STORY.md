@@ -21,19 +21,20 @@ The jury knows the assignment in these words. Say the link out loud during the p
 |---|---|---|
 | Guardian with a role | Hunter (defender) or commander | Login, top bar |
 | Glitch | A fugitive with a bounty: name, threat 1-5, reward, area | Dashboard, Bounties |
-| Echo | A sighting of that fugitive | Report criminal, fugitive page |
-| A new echo opens a glitch | Reporting a criminal opens a new bounty | Report criminal |
+| Echo | A sighting of that fugitive | Fugitive page, Report criminal |
+| A new echo opens a glitch | A commander reporting a criminal opens a new bounty; defenders add sightings to existing bounties | Report criminal (commanders), fugitive page |
 | Status LEAKED → ASSESSING → FIXED | Wanted → Tracking → Captured | Board, fugitive page |
 | Commander = defender + admin rights | Only commanders change status, assign hunters and delete | Dashboard, Board |
 
-The database still stores glitches, echoes and the four original statuses. Only the words on screen changed.
+The database still stores glitches, echoes and the original statuses (minus CONTAINING). Only the words on screen changed.
 
 ## What you can do
 
-- **Report a criminal** (phone friendly): name, threat, area and what you saw. A prison-break alarm goes off.
+- **Report a criminal** (commanders, phone friendly): name, threat, area and what you saw. A prison-break alarm goes off.
+- **Report a sighting** (everyone): on a fugitive's page, add what you saw in the field.
 - **Dashboard:** every fugitive, newest first, plus the **orb**. The danger level is the share of fugitives still loose. The orb cracks, turns red and sounds the alarm as danger rises, and heals as fugitives are captured.
 - **Bounties:** wanted posters. A hunter claims a bounty and earns **shards** when the fugitive is captured.
-- **Board:** the hunt as four columns. Commanders drag fugitives from Wanted to Captured.
+- **Board:** the hunt as three columns. Commanders drag fugitives from Wanted to Captured.
 - **Hunters:** the leaderboard, ranked by shards, with titles from Initiate to Archon.
 - **Roulette:** gamble your shards. The leaderboard only counts what you earned.
 - **Live:** every screen updates within 2 seconds, without a refresh.
@@ -42,10 +43,10 @@ The database still stores glitches, echoes and the four original statuses. Only 
 ## Demo flow (about 3 minutes)
 
 1. **Open in the world.** "The Null Vault has been breached." Show the dashboard: danger at 58%, the orb cracked and red, 7 fugitives loose.
-2. **Defender on a phone** reports a new criminal at the Forge. The alarm fires.
-3. **Commander on the laptop** did not touch anything: the fugitive appears on the dashboard and the danger level rises.
+2. **Commander on a phone** reports a new criminal at the Forge. The alarm fires.
+3. **On the laptop** nobody touched anything: the fugitive appears on the dashboard and the danger level rises.
 4. **Roblox** shows the same change in the 3D city.
-5. **The hunt.** A defender claims the bounty. The commander drags it across the board: Tracking, Captured.
+5. **The hunt.** A defender claims the bounty and adds a sighting from the field. The commander drags it across the board: Tracking, Captured.
 6. **The payoff.** The danger level drops, the orb heals, the hunter earns shards and climbs the leaderboard.
 7. **Close.** "Every glitch is a fugitive, every echo a sighting. Mission Control turns incident response into a hunt."
 

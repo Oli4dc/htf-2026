@@ -47,9 +47,11 @@ export function TopBar({ guardian, shards }: { guardian: Guardian; shards: numbe
           <Link to="/roulette" className={navClass} activeProps={{ className: navActiveClass }}>
             Roulette
           </Link>
-          <Link to="/report" className={navClass} activeProps={{ className: navActiveClass }}>
-            Report criminal
-          </Link>
+          {isCommander && (
+            <Link to="/report" className={navClass} activeProps={{ className: navActiveClass }}>
+              Report criminal
+            </Link>
+          )}
         </nav>
       </div>
 
