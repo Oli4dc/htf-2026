@@ -1,7 +1,8 @@
 import { timingSafeEqual } from 'node:crypto'
-import { count, max } from 'drizzle-orm'
+import { count, eq, max, ne } from 'drizzle-orm'
 import { db } from '#/db/index.ts'
-import { glitches } from '#/db/schema.ts'
+import { glitches, guardians } from '#/db/schema.ts'
+import { travelProgress, travelState, type TravelState } from '#/lib/bounty.ts'
 import {
   GLITCH_LOCATIONS,
   computeMagicLevel,
@@ -20,6 +21,45 @@ export type GridState = {
   areas: PerArea
   /** Highest threat (1-5) among the open bounties of each area, 0 when the area is clear. */
   threat: PerArea
+  /** Claimed, still-open bounties: the Roblox map walks a marker with the hunter's codename to the area. */
+  hunts: Hunt[]
+  /** One visible incident per open bounty; the Roblox map stacks them on the area's island. */
+  events: MapEvent[]
+}
+
+/** Incident shown on the map for a loose fugitive. Derived from the bounty, never stored. */
+export type MapEventType = 'fire' | 'crash' | 'monster_landing' | 'sky_glitch'
+
+export type MapEvent = {
+  /** glitch_id: the same bounty always shows the same event. */
+  id: number
+  area: GlitchLocation
+  type: MapEventType
+  threat: number
+}
+
+// Fugitives escaped from the Null Vault show as creature incidents, anomalies as broken-world ones.
+// glitch_id picks between the two, so the choice is stable without a database column.
+const EVENT_TYPES_BY_KIND: Record<string, [MapEventType, MapEventType]> = {
+  FUGITIVE: ['monster_landing', 'fire'],
+  ANOMALY: ['sky_glitch', 'crash'],
+}
+
+function eventTypeFor(id: number, kind: string): MapEventType {
+  const pair = EVENT_TYPES_BY_KIND[kind] ?? EVENT_TYPES_BY_KIND.ANOMALY
+  return pair[id % 2]
+}
+
+export type Hunt = {
+  /** glitch_id: stable per bounty, so clients can tell new hunts from ones they already show. */
+  id: number
+  /** Codename of the guardian who claimed the bounty. */
+  hunter: string
+  area: GlitchLocation
+  threat: number
+  /** 0..1 share of the hunter's travel from the Citadel to the area (HUNT_TRAVEL_SECONDS long). */
+  progress: number
+  state: TravelState
 }
 
 const emptyAreas = () => Object.fromEntries(GLITCH_LOCATIONS.map((area) => [area, 0])) as PerArea
@@ -50,7 +90,42 @@ export function getGridState(): GridState {
 
   // Same calculation as the dashboard, so both always show the same number.
   const magic = Math.round(computeMagicLevel(statuses))
-  return { magic, danger: 100 - magic, areas, threat }
+
+  // Inner join skips unclaimed bounties; claimed_by_guardian_id is indexed, so this stays cheap at a 2 s poll.
+  const now = Date.now()
+  const hunts: Hunt[] = db
+    .select({
+      id: glitches.glitchId,
+      hunter: guardians.codename,
+      area: glitches.location,
+      threat: glitches.threat,
+      claimedAt: glitches.claimedAt,
+    })
+    .from(glitches)
+    .innerJoin(guardians, eq(glitches.claimedByGuardianId, guardians.guardianId))
+    .where(ne(glitches.status, 'FIXED'))
+    .orderBy(glitches.glitchId)
+    .all()
+    .map(({ claimedAt, ...hunt }) => {
+      // Same helper as the app's "Traveling to …" bar, so the map and the app agree.
+      const progress = Math.round(travelProgress(claimedAt, now) * 100) / 100
+      return { ...hunt, progress, state: travelState(progress) }
+    })
+
+  const events: MapEvent[] = db
+    .select({
+      id: glitches.glitchId,
+      area: glitches.location,
+      kind: glitches.kind,
+      threat: glitches.threat,
+    })
+    .from(glitches)
+    .where(ne(glitches.status, 'FIXED'))
+    .orderBy(glitches.glitchId)
+    .all()
+    .map(({ kind, ...event }) => ({ ...event, type: eventTypeFor(event.id, kind) }))
+
+  return { magic, danger: 100 - magic, areas, threat, hunts, events }
 }
 
 /** True when `key` matches the GRID_KEY env var. Fails closed when GRID_KEY is not set. */

@@ -4,6 +4,7 @@ import { Crosshair, MapPin, MessageSquare } from 'lucide-react'
 import { StatusPill } from '#/components/StatusBadge.tsx'
 import { Shards } from '#/components/bounty/Shards.tsx'
 import { ThreatMeter } from '#/components/bounty/ThreatMeter.tsx'
+import { TravelStatus } from '#/components/bounty/TravelStatus.tsx'
 import { TimeAgo } from '#/components/ui/TimeAgo.tsx'
 import { FINAL_STATUS, LOCATION_LABELS, type Bounty } from '#/lib/bounty.ts'
 import { formatGlitchId } from '#/lib/glitch.ts'
@@ -103,6 +104,11 @@ export function WantedPoster({
             {isMine && <span className="text-xs font-semibold text-copper">(you)</span>}
           </dd>
         </div>
+        {bounty.hunter && !resolved && (
+          <div className="col-span-2">
+            <TravelStatus claimedAt={bounty.claimedAt} location={bounty.location} />
+          </div>
+        )}
       </dl>
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">

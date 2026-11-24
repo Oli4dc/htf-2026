@@ -6,7 +6,7 @@ import { PostBountyForm } from '#/components/bounty/PostBountyForm.tsx'
 import { PrisonBreakBanner } from '#/components/bounty/PrisonBreakBanner.tsx'
 import { WantedPoster } from '#/components/bounty/WantedPoster.tsx'
 import { getBounties } from '#/lib/bounties.functions.ts'
-import { FINAL_STATUS, type Bounty } from '#/lib/bounty.ts'
+import { FINAL_STATUS, activeHuntOf, type Bounty } from '#/lib/bounty.ts'
 import type { Guardian } from '#/lib/guardian.ts'
 
 export const Route = createFileRoute('/_authed/bounties')({
@@ -47,6 +47,8 @@ function BountyBoardPage() {
     (b) => b.kind === 'FUGITIVE' && b.status !== FINAL_STATUS,
   ).length
   const open = bounties.filter((b) => b.status !== FINAL_STATUS).length
+  // One active bounty per hunter: other posters show a locked Claim while this one is open.
+  const activeHunt = activeHuntOf(bounties, guardian.guardianId)
   const shown = bounties.filter((b) => matches(filter, b, guardian))
   const counts = Object.fromEntries(
     FILTERS.map((f) => [f.id, bounties.filter((b) => matches(f.id, b, guardian)).length]),
@@ -120,7 +122,7 @@ function BountyBoardPage() {
                 bounty={bounty}
                 isMine={bounty.claimedByGuardianId === guardian.guardianId}
               >
-                <BountyActions bounty={bounty} guardian={guardian} />
+                <BountyActions bounty={bounty} guardian={guardian} activeHunt={activeHunt} />
               </WantedPoster>
             </li>
           ))}

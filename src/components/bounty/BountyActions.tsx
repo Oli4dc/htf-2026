@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import { ChevronsRight, Crosshair, Eye } from 'lucide-react'
+import { ChevronsRight, Crosshair, Eye, Lock } from 'lucide-react'
 import { advanceBounty, claimBounty } from '#/lib/bounties.functions.ts'
-import { FINAL_STATUS, huntLabel, nextStatus, type Bounty } from '#/lib/bounty.ts'
+import { FINAL_STATUS, huntLabel, nextStatus, type ActiveHunt, type Bounty } from '#/lib/bounty.ts'
 import type { Guardian } from '#/lib/guardian.ts'
 
 const buttonBase =
@@ -19,11 +19,14 @@ export function BountyActions({
   bounty,
   guardian,
   showSighting = true,
+  activeHunt = null,
 }: {
   bounty: Bounty
   guardian: Guardian
   /** Off on the detail page, where the sighting form is right there. */
   showSighting?: boolean
+  /** The viewer's current hunt: a hunter holds one active bounty at a time. */
+  activeHunt?: ActiveHunt | null
 }) {
   const router = useRouter()
   const claim = useServerFn(claimBounty)
@@ -34,7 +37,10 @@ export function BountyActions({
   const resolved = bounty.status === FINAL_STATUS
   const isCommander = guardian.role === 'commander'
   const isHunter = bounty.claimedByGuardianId === guardian.guardianId
-  const canClaim = !resolved && guardian.role === 'defender' && bounty.claimedByGuardianId === null
+  const claimable = !resolved && guardian.role === 'defender' && bounty.claimedByGuardianId === null
+  // Busy on another bounty: Claim stays visible but locked, with the reason next to it.
+  const busyWith = claimable && activeHunt && activeHunt.glitchId !== bounty.glitchId ? activeHunt : null
+  const canClaim = claimable && !busyWith
   const next = nextStatus(bounty.status)
   const canAdvance = next !== null && (isHunter || isCommander)
 
@@ -51,11 +57,16 @@ export function BountyActions({
     }
   }
 
-  if (!canClaim && !canAdvance && !showSighting) return null
+  if (!canClaim && !busyWith && !canAdvance && !showSighting) return null
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2">
+        {busyWith && (
+          <button type="button" disabled className={primary} title="One active bounty per hunter">
+            <Lock className="size-4" /> Claim bounty
+          </button>
+        )}
         {canClaim && (
           <button
             type="button"
@@ -87,6 +98,19 @@ export function BountyActions({
           </Link>
         )}
       </div>
+      {busyWith && (
+        <p className="text-sm text-muted">
+          You're already hunting{' '}
+          <Link
+            to="/glitches/$glitchId"
+            params={{ glitchId: String(busyWith.glitchId) }}
+            className="font-semibold text-copper hover:underline"
+          >
+            {busyWith.targetName}
+          </Link>
+          . Capture or release it first.
+        </p>
+      )}
       {error && (
         <p role="alert" className="text-sm text-red-300">
           {error}

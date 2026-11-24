@@ -29,6 +29,27 @@ export const DEFAULT_TARGET_NAME = 'Unidentified anomaly'
 /** Final status in the database. Reaching it resolves the bounty and pays out. */
 export const FINAL_STATUS: GlitchStatus = 'FIXED'
 
+// --- Travel ------------------------------------------------------------------------
+// A hunter who takes a bounty first travels from the Citadel to its area. The app and the
+// Roblox map both derive the travel from claimed_at, so they agree on where the hunter is.
+
+/** Seconds from claiming a bounty to being on site. The Roblox client uses the same number. */
+export const HUNT_TRAVEL_SECONDS = 15
+
+export type TravelState = 'traveling' | 'on_site'
+
+/** 0..1 share of the travel done. Bounties claimed before claimed_at existed count as on site. */
+export function travelProgress(claimedAt: string | null, now = Date.now()) {
+  if (!claimedAt) return 1
+  const elapsed = (now - Date.parse(claimedAt)) / 1000
+  if (!Number.isFinite(elapsed)) return 1
+  return Math.min(1, Math.max(0, elapsed / HUNT_TRAVEL_SECONDS))
+}
+
+export function travelState(progress: number): TravelState {
+  return progress >= 1 ? 'on_site' : 'traveling'
+}
+
 /** Shards paid for a bounty: 100 per threat level, fugitives pay 1.5x. */
 export function defaultReward(threat: number, kind: BountyKind = 'ANOMALY') {
   return Math.round(clampThreat(threat) * 100 * (kind === 'FUGITIVE' ? 1.5 : 1))
@@ -102,6 +123,8 @@ export type Bounty = {
   claimedByGuardianId: number | null
   /** Codename of the hunter, if claimed. */
   hunter: string | null
+  /** ISO 8601, when the current hunter claimed it (start of their travel). */
+  claimedAt: string | null
   resolvedAt: string | null
   echoCount: number
   /** ISO 8601 of the latest sighting. */
@@ -115,7 +138,17 @@ export type Sighting = {
   guardian: { codename: string; role: string }
 }
 
+/** A hunter holds one active (not FIXED) bounty at a time; this is the one they hold. */
+export type ActiveHunt = { glitchId: number; targetName: string }
+
+export function activeHuntOf(bounties: Bounty[], guardianId: number): ActiveHunt | null {
+  const hunt = bounties.find((b) => b.claimedByGuardianId === guardianId && b.status !== FINAL_STATUS)
+  return hunt ? { glitchId: hunt.glitchId, targetName: hunt.targetName } : null
+}
+
 export type BountyDetail = Bounty & {
+  /** The viewer's own active hunt (any bounty), so the page can explain why Claim is locked. */
+  myActiveHunt: ActiveHunt | null
   sightings: Sighting[]
   /** Defenders a commander can assign; empty for everyone else. */
   defenders: { guardianId: number; codename: string }[]

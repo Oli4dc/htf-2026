@@ -39,6 +39,8 @@ export const glitches = sqliteTable(
       () => guardians.guardianId,
       { onDelete: 'set null' },
     ),
+    /** ISO 8601; when the current hunter took the bounty (start of the travel). Null when unclaimed. */
+    claimedAt: text('claimed_at'),
     /** ISO 8601; set when the bounty reaches its final status. */
     resolvedAt: text('resolved_at'),
   },

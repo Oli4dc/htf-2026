@@ -45,7 +45,12 @@ function BountyPage() {
         isMine={bounty.claimedByGuardianId === guardian.guardianId}
         large
       >
-        <BountyActions bounty={bounty} guardian={guardian} showSighting={false} />
+        <BountyActions
+          bounty={bounty}
+          guardian={guardian}
+          showSighting={false}
+          activeHunt={bounty.myActiveHunt}
+        />
       </WantedPoster>
 
       <StatusTrack bounty={bounty} guardian={guardian} />

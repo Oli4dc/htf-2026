@@ -1,6 +1,6 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { and, asc, count, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm'
+import { and, asc, count, desc, eq, isNotNull, isNull, ne, sql } from 'drizzle-orm'
 import { db } from '#/db/index.ts'
 import { echoes, glitches, guardians } from '#/db/schema.ts'
 import { requireCommander, requireGuardian } from '#/lib/auth.server.ts'
@@ -55,6 +55,18 @@ function parseText(value: unknown, label: string, maxLength: number) {
   return text
 }
 
+/** The bounty a guardian is currently hunting (claimed and not closed), if any. */
+function findActiveHunt(source: Pick<typeof db, 'select'>, guardianId: number) {
+  return (
+    source
+      .select({ glitchId: glitches.glitchId, targetName: glitches.targetName })
+      .from(glitches)
+      .where(and(eq(glitches.claimedByGuardianId, guardianId), ne(glitches.status, FINAL_STATUS)))
+      .orderBy(asc(glitches.glitchId))
+      .get() ?? null
+  )
+}
+
 // --- Reads ---------------------------------------------------------------------------
 
 const bountyColumns = {
@@ -70,6 +82,7 @@ const bountyColumns = {
   location: glitches.location,
   claimedByGuardianId: glitches.claimedByGuardianId,
   hunter: guardians.codename,
+  claimedAt: glitches.claimedAt,
   resolvedAt: glitches.resolvedAt,
   echoCount: count(echoes.echoId),
   lastSeenAt: sql<string>`coalesce(max(${echoes.timestamp}), ${glitches.timestamp})`,
@@ -128,7 +141,9 @@ export const getBounty = createServerFn({ method: 'GET' })
             .all()
         : []
 
-    return { ...bounty, sightings, defenders }
+    const myActiveHunt = findActiveHunt(db, guardian.guardianId)
+
+    return { ...bounty, myActiveHunt, sightings, defenders }
   })
 
 /** "Strongest hunters": every defender, ranked by shards earned. */
@@ -197,11 +212,19 @@ export const claimBounty = createServerFn({ method: 'POST' })
       if (!bounty) throw new Error('That bounty no longer exists.')
       if (bounty.status === FINAL_STATUS) throw new Error('This bounty is already closed.')
 
+      // One hunter, one active bounty: checked inside the transaction so two quick claims can't both pass.
+      const current = findActiveHunt(tx, guardian.guardianId)
+      if (current) {
+        throw new Error(`You're already hunting ${current.targetName}. Capture or release it first.`)
+      }
+
       // The claimed_by check in the WHERE keeps two hunters from claiming at once.
       const result = tx
         .update(glitches)
         .set({
           claimedByGuardianId: guardian.guardianId,
+          // Start of the hunter's travel to the bounty's area (shown in the app and on the Roblox map).
+          claimedAt: new Date().toISOString(),
           status: bounty.status === 'LEAKED' ? 'ASSESSING' : bounty.status,
         })
         .where(and(eq(glitches.glitchId, glitchId), isNull(glitches.claimedByGuardianId)))
@@ -327,7 +350,7 @@ export const assignBounty = createServerFn({ method: 'POST' })
     requireCommander()
     db.transaction((tx) => {
       const bounty = tx
-        .select({ status: glitches.status })
+        .select({ status: glitches.status, claimedBy: glitches.claimedByGuardianId })
         .from(glitches)
         .where(eq(glitches.glitchId, data.glitchId))
         .get()
@@ -346,6 +369,12 @@ export const assignBounty = createServerFn({ method: 'POST' })
       tx.update(glitches)
         .set({
           claimedByGuardianId: data.guardianId,
+          // A new hunter starts travelling now; re-saving the same hunter keeps their travel; unclaimed clears it.
+          ...(data.guardianId === null
+            ? { claimedAt: null }
+            : data.guardianId !== bounty.claimedBy
+              ? { claimedAt: new Date().toISOString() }
+              : {}),
           // A wanted bounty that gets a hunter is being tracked.
           ...(data.guardianId !== null && bounty.status === 'LEAKED'
             ? { status: 'ASSESSING' as const }
