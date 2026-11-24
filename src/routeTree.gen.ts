@@ -16,6 +16,8 @@ import { Route as AuthedBountiesRouteImport } from './routes/_authed/bounties'
 import { Route as AuthedLeaderboardRouteImport } from './routes/_authed/leaderboard'
 import { Route as AuthedRouletteRouteImport } from './routes/_authed/roulette'
 import { Route as AuthedGlitchesGlitchIdRouteImport } from './routes/_authed/glitches/$glitchId'
+import { Route as ApiRobloxClaimRouteImport } from './routes/api/roblox/claim'
+import { Route as ApiRobloxJoinRouteImport } from './routes/api/roblox/join'
 import { Route as ApiRobloxStateRouteImport } from './routes/api/roblox/state'
 
 const AuthedRoute = AuthedRouteImport.update({
@@ -52,6 +54,16 @@ const AuthedGlitchesGlitchIdRoute = AuthedGlitchesGlitchIdRouteImport.update({
   path: '/glitches/$glitchId',
   getParentRoute: () => AuthedRoute,
 } as any)
+const ApiRobloxClaimRoute = ApiRobloxClaimRouteImport.update({
+  id: '/api/roblox/claim',
+  path: '/api/roblox/claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRobloxJoinRoute = ApiRobloxJoinRouteImport.update({
+  id: '/api/roblox/join',
+  path: '/api/roblox/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiRobloxStateRoute = ApiRobloxStateRouteImport.update({
   id: '/api/roblox/state',
   path: '/api/roblox/state',
@@ -65,6 +77,8 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof AuthedLeaderboardRoute
   '/roulette': typeof AuthedRouletteRoute
   '/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
+  '/api/roblox/claim': typeof ApiRobloxClaimRoute
+  '/api/roblox/join': typeof ApiRobloxJoinRoute
   '/api/roblox/state': typeof ApiRobloxStateRoute
 }
 export interface FileRoutesByTo {
@@ -74,6 +88,8 @@ export interface FileRoutesByTo {
   '/roulette': typeof AuthedRouletteRoute
   '/': typeof AuthedIndexRoute
   '/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
+  '/api/roblox/claim': typeof ApiRobloxClaimRoute
+  '/api/roblox/join': typeof ApiRobloxJoinRoute
   '/api/roblox/state': typeof ApiRobloxStateRoute
 }
 export interface FileRoutesById {
@@ -85,6 +101,8 @@ export interface FileRoutesById {
   '/_authed/roulette': typeof AuthedRouletteRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
+  '/api/roblox/claim': typeof ApiRobloxClaimRoute
+  '/api/roblox/join': typeof ApiRobloxJoinRoute
   '/api/roblox/state': typeof ApiRobloxStateRoute
 }
 export interface FileRouteTypes {
@@ -96,6 +114,8 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/roulette'
     | '/glitches/$glitchId'
+    | '/api/roblox/claim'
+    | '/api/roblox/join'
     | '/api/roblox/state'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -105,6 +125,8 @@ export interface FileRouteTypes {
     | '/roulette'
     | '/'
     | '/glitches/$glitchId'
+    | '/api/roblox/claim'
+    | '/api/roblox/join'
     | '/api/roblox/state'
   id:
     | '__root__'
@@ -115,12 +137,16 @@ export interface FileRouteTypes {
     | '/_authed/roulette'
     | '/_authed/'
     | '/_authed/glitches/$glitchId'
+    | '/api/roblox/claim'
+    | '/api/roblox/join'
     | '/api/roblox/state'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ApiRobloxClaimRoute: typeof ApiRobloxClaimRoute
+  ApiRobloxJoinRoute: typeof ApiRobloxJoinRoute
   ApiRobloxStateRoute: typeof ApiRobloxStateRoute
 }
 
@@ -175,6 +201,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedGlitchesGlitchIdRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/api/roblox/claim': {
+      id: '/api/roblox/claim'
+      path: '/api/roblox/claim'
+      fullPath: '/api/roblox/claim'
+      preLoaderRoute: typeof ApiRobloxClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/roblox/join': {
+      id: '/api/roblox/join'
+      path: '/api/roblox/join'
+      fullPath: '/api/roblox/join'
+      preLoaderRoute: typeof ApiRobloxJoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/roblox/state': {
       id: '/api/roblox/state'
       path: '/api/roblox/state'
@@ -207,6 +247,8 @@ const AuthedRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   LoginRoute: LoginRoute,
+  ApiRobloxClaimRoute: ApiRobloxClaimRoute,
+  ApiRobloxJoinRoute: ApiRobloxJoinRoute,
   ApiRobloxStateRoute: ApiRobloxStateRoute,
 }
 export const routeTree = rootRouteImport

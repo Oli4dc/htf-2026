@@ -1,10 +1,10 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { and, asc, count, desc, eq, isNotNull, isNull, ne, sql } from 'drizzle-orm'
+import { and, asc, count, desc, eq, isNotNull, ne, sql } from 'drizzle-orm'
 import { db } from '#/db/index.ts'
 import { echoes, glitches, guardians } from '#/db/schema.ts'
 import { requireCommander, requireGuardian } from '#/lib/auth.server.ts'
-import { balanceFor, setBountyStatus } from '#/lib/bounty.server.ts'
+import { balanceFor, claimBountyFor, findActiveHunt, setBountyStatus } from '#/lib/bounty.server.ts'
 import {
   FINAL_STATUS,
   MAX_THREAT,
@@ -54,17 +54,6 @@ function parseText(value: unknown, label: string, maxLength: number) {
   return text
 }
 
-/** The bounty a guardian is currently hunting (claimed and not closed), if any. */
-function findActiveHunt(source: Pick<typeof db, 'select'>, guardianId: number) {
-  return (
-    source
-      .select({ glitchId: glitches.glitchId, targetName: glitches.targetName })
-      .from(glitches)
-      .where(and(eq(glitches.claimedByGuardianId, guardianId), ne(glitches.status, FINAL_STATUS)))
-      .orderBy(asc(glitches.glitchId))
-      .get() ?? null
-  )
-}
 
 // --- Reads ---------------------------------------------------------------------------
 
@@ -201,34 +190,7 @@ export const claimBounty = createServerFn({ method: 'POST' })
       throw new Error('Only hunters claim bounties. Commanders assign them instead.')
     }
 
-    db.transaction((tx) => {
-      const bounty = tx
-        .select({ status: glitches.status, claimedBy: glitches.claimedByGuardianId })
-        .from(glitches)
-        .where(eq(glitches.glitchId, glitchId))
-        .get()
-      if (!bounty) throw new Error('That bounty no longer exists.')
-      if (bounty.status === FINAL_STATUS) throw new Error('This bounty is already closed.')
-
-      // One hunter, one active bounty: checked inside the transaction so two quick claims can't both pass.
-      const current = findActiveHunt(tx, guardian.guardianId)
-      if (current) {
-        throw new Error(`You're already hunting ${current.targetName}. Capture or release it first.`)
-      }
-
-      // The claimed_by check in the WHERE keeps two hunters from claiming at once.
-      const result = tx
-        .update(glitches)
-        .set({
-          claimedByGuardianId: guardian.guardianId,
-          // Start of the hunter's travel to the bounty's area (shown in the app and on the Roblox map).
-          claimedAt: new Date().toISOString(),
-          status: bounty.status === 'LEAKED' ? 'ASSESSING' : bounty.status,
-        })
-        .where(and(eq(glitches.glitchId, glitchId), isNull(glitches.claimedByGuardianId)))
-        .run()
-      if (result.changes === 0) throw new Error('Another hunter got there first.')
-    })
+    claimBountyFor(guardian.guardianId, glitchId)
   })
 
 /** The hunter gives up an open bounty: it is wanted again and anyone can claim it. */

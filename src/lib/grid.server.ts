@@ -52,6 +52,8 @@ export type Hunt = {
   id: number
   /** Codename of the guardian who claimed the bounty. */
   hunter: string
+  /** That guardian's id: a Roblox player who joined as this hunter sees the marker as "You". */
+  guardianId: number
   area: GlitchLocation
   threat: number
   /** 0..1 share of the hunter's travel from the Citadel to the area (HUNT_TRAVEL_SECONDS long). */
@@ -94,6 +96,7 @@ export function getGridState(): GridState {
     .select({
       id: glitches.glitchId,
       hunter: guardians.codename,
+      guardianId: guardians.guardianId,
       area: glitches.location,
       threat: glitches.threat,
       claimedAt: glitches.claimedAt,

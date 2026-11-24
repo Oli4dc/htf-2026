@@ -17,8 +17,9 @@ const IGNORED_SERVER_WARNINGS = new Set([
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
-  // Lets the dev server answer through a Cloudflare quick tunnel (public demo URL).
-  server: { allowedHosts: ['.trycloudflare.com'] },
+  // Lets the dev server answer through the public demo tunnels: the fixed ngrok domain
+  // (the Roblox place calls it) and Cloudflare quick tunnels.
+  server: { allowedHosts: ['.ngrok-free.dev', '.trycloudflare.com'] },
   plugins: [
     devtools(),
     nitro({

@@ -14,6 +14,8 @@ export const guardians = sqliteTable('guardians', {
   codename: text('codename').notNull().unique(),
   role: text('role', { enum: GUARDIAN_ROLES }).notNull(),
   passwordHash: text('password_hash').notNull(),
+  /** Set for hunters who joined from the Roblox map: one hunter per Roblox account. */
+  robloxUserId: integer('roblox_user_id').unique(),
 })
 
 /** Every glitch is also a bounty (src/lib/bounty.ts). The bounty columns all have defaults. */
