@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import { ChevronsRight, Crosshair, Eye, Lock } from 'lucide-react'
-import { advanceBounty, claimBounty } from '#/lib/bounties.functions.ts'
+import { ChevronsRight, Crosshair, Eye, Lock, Undo2 } from 'lucide-react'
+import { advanceBounty, claimBounty, releaseBounty } from '#/lib/bounties.functions.ts'
 import { FINAL_STATUS, huntLabel, nextStatus, type ActiveHunt, type Bounty } from '#/lib/bounty.ts'
 import type { Guardian } from '#/lib/guardian.ts'
 
@@ -31,6 +31,7 @@ export function BountyActions({
   const router = useRouter()
   const claim = useServerFn(claimBounty)
   const advance = useServerFn(advanceBounty)
+  const release = useServerFn(releaseBounty)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -43,6 +44,7 @@ export function BountyActions({
   const canClaim = claimable && !busyWith
   const next = nextStatus(bounty.status)
   const canAdvance = next !== null && (isHunter || isCommander)
+  const canRelease = isHunter && !resolved
 
   async function run(action: () => Promise<unknown>) {
     setBusy(true)
@@ -85,6 +87,17 @@ export function BountyActions({
             className={canClaim ? secondary : primary}
           >
             <ChevronsRight className="size-4" /> {huntLabel(next)}
+          </button>
+        )}
+        {canRelease && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => run(() => release({ data: bounty.glitchId }))}
+            className={secondary}
+            title="Give up this hunt so you can claim another"
+          >
+            <Undo2 className="size-4" /> Release
           </button>
         )}
         {showSighting && (

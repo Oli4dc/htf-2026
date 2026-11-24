@@ -230,6 +230,26 @@ export const claimBounty = createServerFn({ method: 'POST' })
     })
   })
 
+/** The hunter gives up an open bounty: it is wanted again and anyone can claim it. */
+export const releaseBounty = createServerFn({ method: 'POST' })
+  .validator((glitchId: number) => parseId(glitchId))
+  .handler(async ({ data: glitchId }) => {
+    const guardian = requireGuardian()
+    // Hunter and open status are checked in the WHERE, so a capture at the same moment wins.
+    const result = db
+      .update(glitches)
+      .set({ claimedByGuardianId: null, claimedAt: null, status: 'LEAKED' })
+      .where(
+        and(
+          eq(glitches.glitchId, glitchId),
+          eq(glitches.claimedByGuardianId, guardian.guardianId),
+          ne(glitches.status, FINAL_STATUS),
+        ),
+      )
+      .run()
+    if (result.changes === 0) throw new Error('You can only release an open bounty you are hunting.')
+  })
+
 /**
  * Moves the hunt along. The claiming hunter can only go one step forward;
  * a commander can set any status, also backwards.
@@ -358,6 +378,12 @@ export const assignBounty = createServerFn({ method: 'POST' })
           .get()
         if (!hunter) throw new Error('That guardian does not exist.')
         if (hunter.role !== 'defender') throw new Error('Bounties go to defenders.')
+
+        // Same rule as claiming: a hunter holds one open bounty at a time.
+        const current = findActiveHunt(tx, data.guardianId)
+        if (bounty.status !== FINAL_STATUS && current && current.glitchId !== data.glitchId) {
+          throw new Error(`That hunter is already on ${current.targetName}. Unassign them there first.`)
+        }
       }
 
       tx.update(glitches)

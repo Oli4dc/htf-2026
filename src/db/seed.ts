@@ -67,7 +67,7 @@ const seedBounties: SeedBounty[] = [
       [ROOK, 120, 'The whispers get louder near the restricted section'],
     ] },
   { id: 156, targetName: 'Ember Moths', kind: 'ANOMALY', threat: 3,
-    location: 'forge', status: 'ASSESSING', hunter: EMBER, sightings: [
+    location: 'forge', status: 'LEAKED', hunter: null, sightings: [
       [EMBER, 500, 'A swarm of burning moths is eating the magic out of the forge lamps'],
       [WARDEN, 200, 'Forge sealed off. The moths are trapped in the east hall'],
     ] },
