@@ -101,6 +101,9 @@ export function hunterStandings() {
       codename: guardians.codename,
       shards: sql<number>`coalesce(sum(${glitches.reward}), 0)`,
       captures: count(glitches.glitchId),
+      // Split by kind: fugitives are captured, anomalies are fixed.
+      captured: sql<number>`coalesce(sum(case when ${glitches.kind} = 'FUGITIVE' then 1 else 0 end), 0)`,
+      fixed: sql<number>`coalesce(sum(case when ${glitches.kind} = 'ANOMALY' then 1 else 0 end), 0)`,
       topThreat: sql<number>`coalesce(max(${glitches.threat}), 0)`,
     })
     .from(guardians)

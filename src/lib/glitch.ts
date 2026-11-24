@@ -62,6 +62,8 @@ export type Glitch = {
 export type GlitchSummary = Glitch & {
   echoCount: number
   targetName: string
+  /** Decides the final label: a fugitive is Captured, an anomaly Fixed. */
+  kind: 'FUGITIVE' | 'ANOMALY'
 }
 
 export type EchoWithGuardian = {

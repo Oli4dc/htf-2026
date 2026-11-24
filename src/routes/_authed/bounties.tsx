@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_authed/bounties')({
 const FILTERS = [
   { id: 'all', label: 'All' },
   { id: 'mine', label: 'Claimed by you' },
-  { id: 'captured', label: 'Captured' },
+  { id: 'captured', label: 'Fixed' },
 ] as const
 
 type FilterId = (typeof FILTERS)[number]['id']
@@ -88,8 +88,9 @@ function BountyBoardPage() {
         >
           <span className="inline-flex items-center gap-2 text-fg">
             <Crosshair aria-hidden="true" className="size-5 text-copper" />
-            Your hunt: <span className="font-semibold">{myHunt.targetName}</span>
-            <span className="text-sm text-muted">· one at a time, capture it to claim another</span>
+            {myHunt.kind === 'FUGITIVE' ? 'Your hunt' : 'Your job'}:{' '}
+            <span className="font-semibold">{myHunt.targetName}</span>
+            <span className="text-sm text-muted">· one at a time, fix it to claim another</span>
           </span>
           <TravelStatus claimedAt={myHunt.claimedAt} location={myHunt.location} />
         </Link>
@@ -127,7 +128,7 @@ function BountyBoardPage() {
         // Your trophies: shown open, not folded away.
         closed.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-line px-6 py-10 text-center text-muted">
-            Nothing captured yet. Close a hunt to see it here.
+            Nothing fixed yet. Close a hunt to see it here.
           </p>
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{closed.map(card)}</ul>

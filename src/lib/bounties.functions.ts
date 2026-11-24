@@ -152,6 +152,8 @@ export const getLeaderboard = createServerFn({ method: 'GET' }).handler(
       return {
         ...row,
         shards,
+        captured: Number(row.captured),
+        fixed: Number(row.fixed),
         topThreat: Number(row.topThreat),
         rank: firstEqual === -1 ? i + 1 : firstEqual + 1,
         title: rankTitle(shards),

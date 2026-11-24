@@ -68,7 +68,7 @@ export function TopHunters({
                     {isMe && <span className="ml-1.5 text-xs font-bold text-copper uppercase">You</span>}
                   </span>
                   <span className="block text-xs text-muted">
-                    {hunter.title} · {hunter.captures} {hunter.captures === 1 ? 'capture' : 'captures'}
+                    {hunter.title} · {hunter.captured} captured · {hunter.fixed} fixed
                   </span>
                 </span>
                 <Shards amount={hunter.shards} className="text-sm" />

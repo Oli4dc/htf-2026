@@ -54,7 +54,7 @@ export function MagicPanel({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={danger}
-      aria-valuetext={`${danger}%, ${captured} of ${total} fugitives captured`}
+      aria-valuetext={`${danger}%, ${captured} of ${total} bounties fixed`}
       className="flex items-center gap-5 rounded-2xl border border-line bg-panel p-5 sm:gap-8 sm:p-7"
     >
       <MagicOrb level={level} className="w-28 shrink-0 sm:w-40 lg:w-36 xl:w-44" />
@@ -67,7 +67,7 @@ export function MagicPanel({
           <span className="text-4xl sm:text-5xl lg:text-4xl xl:text-5xl">%</span>
         </p>
         <p className="mt-2 text-base font-medium text-fg">
-          {total === 0 ? 'Nobody has escaped' : `${captured}/${total} captured`}
+          {total === 0 ? 'Nobody has escaped' : `${captured}/${total} fixed`}
         </p>
         <p className="text-base text-muted">{dangerState(danger)}</p>
       </div>

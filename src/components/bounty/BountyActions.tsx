@@ -96,7 +96,7 @@ export function BountyActions({
             onClick={() => run(() => advance({ data: { glitchId: bounty.glitchId } }))}
             className={canClaim ? secondary : primary}
           >
-            <ChevronsRight className="size-4" /> {huntLabel(next)}
+            <ChevronsRight className="size-4" /> {huntLabel(next, bounty.kind)}
           </button>
         )}
         {canRelease && (
@@ -131,7 +131,7 @@ export function BountyActions({
           >
             {busyWith.targetName}
           </Link>
-          . Capture or release it first.
+          . Fix or release it first.
         </p>
       )}
       {error && (

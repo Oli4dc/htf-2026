@@ -34,7 +34,7 @@ function DashboardPage() {
         <header className="flex items-baseline justify-between gap-4">
           <h1 className="font-heading text-4xl leading-none text-fg">Fugitives</h1>
           <p className="text-base text-muted">
-            {open} on the loose · {glitches.length - open} captured
+            {open} on the loose · {glitches.length - open} fixed
           </p>
         </header>
         <div className="min-h-0 lg:overflow-y-auto lg:pr-1">

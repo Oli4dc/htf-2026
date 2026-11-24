@@ -123,15 +123,15 @@ export function defaultDescription(targetName: string, location: Location) {
 // --- Status as hunters see it -------------------------------------------------
 // The database keeps LEAKED/ASSESSING/FIXED; the UI shows the hunt.
 
-const HUNT_LABELS: Record<GlitchStatus, string> = {
-  LEAKED: 'Wanted',
-  ASSESSING: 'Tracking',
-  FIXED: 'Captured',
+// A fugitive is wanted and captured; an anomaly (a fire, upward rain) is reported and fixed.
+const HUNT_LABELS: Record<BountyKind, Record<GlitchStatus, string>> = {
+  FUGITIVE: { LEAKED: 'Wanted', ASSESSING: 'Tracking', FIXED: 'Captured' },
+  ANOMALY: { LEAKED: 'Reported', ASSESSING: 'Tracking', FIXED: 'Fixed' },
 }
 
-/** "Wanted", "Tracking" or "Captured". */
-export function huntLabel(status: GlitchStatus) {
-  return HUNT_LABELS[status]
+/** The status as shown for this kind of bounty. Without a kind it uses the fugitive words. */
+export function huntLabel(status: GlitchStatus, kind: BountyKind = 'FUGITIVE') {
+  return HUNT_LABELS[kind][status]
 }
 
 /** The status after this one, or null at the end of the hunt. */
@@ -204,7 +204,12 @@ export type HunterRow = {
   guardianId: number
   codename: string
   shards: number
+  /** All resolved bounties (captured + fixed). */
   captures: number
+  /** Fugitives this hunter captured. */
+  captured: number
+  /** Anomalies this hunter fixed. */
+  fixed: number
   /** Highest threat among resolved bounties, 0 if none. */
   topThreat: number
   rank: number

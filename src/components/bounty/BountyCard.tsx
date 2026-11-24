@@ -50,7 +50,7 @@ export function BountyCard({
             </Link>
           </h2>
         </div>
-        <StatusBadge status={bounty.status} />
+        <StatusBadge status={bounty.status} kind={bounty.kind} />
       </header>
 
       <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
@@ -65,12 +65,15 @@ export function BountyCard({
       {bounty.hunter && (
         <div className="text-sm">
           {resolved ? (
-            <span className="text-muted">Captured by {bounty.hunter}</span>
+            <span className="text-muted">
+              {fugitive ? 'Captured' : 'Fixed'} by {bounty.hunter}
+            </span>
           ) : isMine ? (
             <TravelStatus claimedAt={bounty.claimedAt} location={bounty.location} />
           ) : (
             <span className="inline-flex items-center gap-1.5 text-muted">
-              <Crosshair aria-hidden="true" className="size-3.5" /> Hunted by {bounty.hunter}
+              <Crosshair aria-hidden="true" className="size-3.5" />{' '}
+              {fugitive ? 'Hunted by' : 'Handled by'} {bounty.hunter}
             </span>
           )}
         </div>

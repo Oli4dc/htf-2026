@@ -138,7 +138,8 @@ function StatusTrack({ bounty, guardian }: { bounty: BountyDetail; guardian: Gua
   return (
     <Card className="p-4 sm:p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-semibold text-fg">The hunt</h2>
+        {/* A fugitive is hunted; an anomaly (a fire, upward rain) is just handled. */}
+        <h2 className="font-semibold text-fg">{bounty.kind === 'FUGITIVE' ? 'The hunt' : 'Progress'}</h2>
         <p className="text-sm text-muted">
           {isCommander
             ? 'Click any step to move this bounty'
@@ -146,7 +147,9 @@ function StatusTrack({ bounty, guardian }: { bounty: BountyDetail; guardian: Gua
               ? 'Your bounty: click the next step when you get there'
               : bounty.hunter
                 ? `${bounty.hunter} is on this one`
-                : 'Claim this bounty to start the hunt'}
+                : bounty.kind === 'FUGITIVE'
+                  ? 'Claim this bounty to start the hunt'
+                  : 'Claim this bounty to take it on'}
         </p>
       </div>
       <ol className="grid grid-cols-3 gap-2">
@@ -167,7 +170,7 @@ function StatusTrack({ bounty, guardian }: { bounty: BountyDetail; guardian: Gua
                 {done ? <Check className="size-4" /> : i + 1}
               </span>
               <span className={`text-xs sm:text-sm ${current ? 'font-semibold text-fg' : 'text-muted'}`}>
-                {huntLabel(step)}
+                {huntLabel(step, bounty.kind)}
               </span>
             </>
           )
