@@ -2,7 +2,6 @@
 export const GLITCH_STATUSES = [
   'LEAKED',
   'ASSESSING',
-  'CONTAINING',
   'FIXED',
 ] as const
 
@@ -50,7 +49,6 @@ export type Glitch = {
 export type GlitchSummary = Glitch & {
   echoCount: number
   targetName: string
-  objective: 'CAPTURE' | 'BANISH'
 }
 
 export type EchoWithGuardian = {

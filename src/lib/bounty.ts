@@ -13,9 +13,6 @@ import {
 export const BOUNTY_KINDS = ['FUGITIVE', 'ANOMALY'] as const
 export type BountyKind = (typeof BOUNTY_KINDS)[number]
 
-export const BOUNTY_OBJECTIVES = ['CAPTURE', 'BANISH'] as const
-export type BountyObjective = (typeof BOUNTY_OBJECTIVES)[number]
-
 // One list of areas for the whole app (and the Roblox client): it lives in glitch.ts.
 export const LOCATIONS = GLITCH_LOCATIONS
 export type Location = GlitchLocation
@@ -46,23 +43,17 @@ export function isBountyKind(value: unknown): value is BountyKind {
   return BOUNTY_KINDS.includes(value as BountyKind)
 }
 
-export function isBountyObjective(value: unknown): value is BountyObjective {
-  return BOUNTY_OBJECTIVES.includes(value as BountyObjective)
-}
-
 // --- Status as hunters see it -------------------------------------------------
-// The database keeps LEAKED/ASSESSING/CONTAINING/FIXED; the UI shows the hunt.
+// The database keeps LEAKED/ASSESSING/FIXED; the UI shows the hunt.
 
 const HUNT_LABELS: Record<GlitchStatus, string> = {
   LEAKED: 'Wanted',
   ASSESSING: 'Tracking',
-  CONTAINING: 'Cornered',
   FIXED: 'Captured',
 }
 
-/** "Wanted", "Tracking", "Cornered", then "Captured" or "Banished" by objective. */
-export function huntLabel(status: GlitchStatus, objective?: BountyObjective) {
-  if (status === FINAL_STATUS && objective === 'BANISH') return 'Banished'
+/** "Wanted", "Tracking" or "Captured". */
+export function huntLabel(status: GlitchStatus) {
   return HUNT_LABELS[status]
 }
 
@@ -95,7 +86,6 @@ export type Bounty = {
   timestamp: string
   targetName: string
   kind: BountyKind
-  objective: BountyObjective
   reward: number
   threat: number
   location: Location

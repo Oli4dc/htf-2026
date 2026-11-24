@@ -73,7 +73,7 @@ function LeaderboardPage() {
 
 **Database tables** (`src/db/schema.ts`)
 - `guardians`: guardianId, codename, role (`defender` | `commander`)
-- `glitches`: glitchId (number), status (`LEAKED` | `ASSESSING` | `CONTAINING` | `FIXED`), description, timestamp (ISO text)
+- `glitches`: glitchId (number), status (`LEAKED` | `ASSESSING` | `FIXED`, shown as Wanted, Tracking, Captured), description, timestamp (ISO text)
 - `echoes`: echoId, description, timestamp, reportingGuardianId, glitchId
 
 **Helpers you can reuse**

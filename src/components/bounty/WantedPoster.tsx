@@ -24,7 +24,6 @@ export function WantedPoster({
 }) {
   const resolved = bounty.status === FINAL_STATUS
   const fugitive = bounty.kind === 'FUGITIVE'
-  const verb = bounty.objective === 'BANISH' ? 'Banish' : 'Capture'
 
   const title = (
     <span className={`font-heading leading-none text-fg ${large ? 'text-5xl sm:text-6xl' : 'text-3xl'}`}>
@@ -47,7 +46,7 @@ export function WantedPoster({
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
           <span className="text-xs font-bold tracking-[0.35em] text-copper uppercase">
-            {resolved ? 'Bounty closed' : 'Wanted'} · {verb}
+            {resolved ? 'Bounty closed' : 'Wanted'}
           </span>
           {large ? (
             <h1>{title}</h1>
@@ -106,7 +105,7 @@ export function WantedPoster({
       </dl>
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-        <StatusPill status={bounty.status} objective={bounty.objective} />
+        <StatusPill status={bounty.status} />
         <span className="inline-flex items-center gap-3 text-sm text-muted">
           <span className="inline-flex items-center gap-1" title={`${bounty.echoCount} sightings`}>
             <MessageSquare aria-hidden="true" className="size-4" /> {bounty.echoCount}

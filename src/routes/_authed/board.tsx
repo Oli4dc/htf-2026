@@ -73,7 +73,7 @@ function BoardPage() {
       )}
 
       {/* Phones: swipe sideways through the columns. */}
-      <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0">
+      <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0">
         {GLITCH_STATUSES.map((status) => {
           const column = shown.filter((g) => g.status === status)
           return (
