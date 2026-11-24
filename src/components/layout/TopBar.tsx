@@ -1,6 +1,7 @@
 import { Link, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import { Hexagon, LogOut } from 'lucide-react'
+import { Shards } from '#/components/bounty/Shards.tsx'
 import { logout } from '#/lib/auth.functions.ts'
 import type { Guardian } from '#/lib/guardian.ts'
 
@@ -10,7 +11,7 @@ const navClass =
 const navActiveClass = 'bg-subtle text-fg'
 
 /** Top bar of the Achrona night theme (design/dashboard.png). */
-export function TopBar({ guardian }: { guardian: Guardian }) {
+export function TopBar({ guardian, shards }: { guardian: Guardian; shards: number }) {
   const router = useRouter()
   const logoutFn = useServerFn(logout)
   const isCommander = guardian.role === 'commander'
@@ -22,7 +23,7 @@ export function TopBar({ guardian }: { guardian: Guardian }) {
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-white/10 bg-topbar px-4 py-3 sm:px-8">
-      <div className="flex items-center gap-4 sm:gap-8">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-8">
         <Link to="/" className="flex items-center gap-3">
           <Hexagon className="size-9 shrink-0 text-cyan drop-shadow-[0_0_8px_rgb(53_214_230/0.7)]" strokeWidth={1.75} />
           <span className="font-heading text-3xl leading-none text-fg sm:text-4xl">
@@ -30,20 +31,36 @@ export function TopBar({ guardian }: { guardian: Guardian }) {
           </span>
         </Link>
         {/* New pages: add a link here. */}
-        <nav className="flex items-center gap-1">
+        <nav className="flex flex-wrap items-center gap-1">
           <Link to="/" className={navClass} activeOptions={{ exact: true }} activeProps={{ className: navActiveClass }}>
             Dashboard
+          </Link>
+          <Link to="/bounties" className={navClass} activeProps={{ className: navActiveClass }}>
+            Bounties
           </Link>
           <Link to="/board" className={navClass} activeProps={{ className: navActiveClass }}>
             Board
           </Link>
+          <Link to="/leaderboard" className={navClass} activeProps={{ className: navActiveClass }}>
+            Hunters
+          </Link>
+          <Link to="/roulette" className={navClass} activeProps={{ className: navActiveClass }}>
+            Roulette
+          </Link>
           <Link to="/report" className={navClass} activeProps={{ className: navActiveClass }}>
-            Report echo
+            Report criminal
           </Link>
         </nav>
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4">
+        <Link
+          to="/leaderboard"
+          title="Your shards from closed bounties"
+          className="rounded-lg border border-cyan/40 bg-cyan/10 px-3 py-1 text-base transition-colors hover:bg-cyan/20"
+        >
+          <Shards amount={shards} />
+        </Link>
         <span className="text-lg font-medium text-fg">{guardian.codename}</span>
         <span
           className={`rounded-lg border px-3 py-1 text-sm font-semibold capitalize ${

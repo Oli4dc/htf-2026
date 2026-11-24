@@ -60,7 +60,7 @@ export function GlitchActions({
         disabled={busy}
         className="size-9 rounded-lg hover:bg-red-500/20 hover:text-red-300 disabled:opacity-50"
         onClick={() => {
-          if (!confirm(`Erase ${label} and all its echoes from the records?`)) return
+          if (!confirm(`Erase ${label} and all their sightings from the records?`)) return
           run(async () => {
             await removeGlitch({ data: glitchId })
             onDeleted?.()

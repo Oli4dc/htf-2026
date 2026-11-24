@@ -4,13 +4,20 @@ import { asc, count, desc, eq, getTableColumns } from 'drizzle-orm'
 import { db } from '#/db/index.ts'
 import { echoes, glitches, guardians } from '#/db/schema.ts'
 import { requireCommander, requireGuardian } from '#/lib/auth.server.ts'
+import { setBountyStatus } from '#/lib/bounty.server.ts'
+import {
+  DEFAULT_TARGET_NAME,
+  MAX_THREAT,
+  MIN_THREAT,
+  defaultReward,
+  isLocation,
+  type Location,
+} from '#/lib/bounty.ts'
 import {
   ECHO_MAX_LENGTH,
   computeMagicLevel,
-  isGlitchLocation,
   isGlitchStatus,
   type GlitchDetail,
-  type GlitchLocation,
   type GlitchStatus,
   type GlitchSummary,
 } from '#/lib/glitch.ts'
@@ -57,9 +64,19 @@ export const getGlitch = createServerFn({ method: 'GET' })
     return { ...glitch, echoes: glitchEchoes }
   })
 
-type ReportEchoInput = { description: string; glitchId?: number; location?: GlitchLocation }
+type ReportEchoInput = {
+  description: string
+  glitchId?: number
+  /** Only used when the echo opens a new bounty. */
+  targetName?: string
+  threat?: number
+  location?: Location
+}
 
-/** Without glitchId the echo opens a new glitch at `location`; with it, the echo is attached. */
+/**
+ * Without glitchId the echo opens a new bounty (WANTED, ANOMALY, default reward
+ * from its threat); with it, the echo is a sighting on that bounty.
+ */
 export const reportEcho = createServerFn({ method: 'POST' })
   .validator((data: ReportEchoInput) => {
     const description = String(data.description ?? '').trim()
@@ -68,11 +85,25 @@ export const reportEcho = createServerFn({ method: 'POST' })
       throw new Error(`Keep it under ${ECHO_MAX_LENGTH} characters.`)
     }
     const glitchId = data.glitchId == null ? undefined : parseGlitchId(data.glitchId)
-    // A new glitch needs to know where in Achrona it is.
-    if (glitchId === undefined && !isGlitchLocation(data.location)) {
-      throw new Error('Choose where in Achrona this is happening.')
+
+    const threat = data.threat == null ? MIN_THREAT : Number(data.threat)
+    if (!Number.isInteger(threat) || threat < MIN_THREAT || threat > MAX_THREAT) {
+      throw new Error(`Threat must be from ${MIN_THREAT} to ${MAX_THREAT}.`)
     }
-    return { description, glitchId, location: data.location }
+    if (data.location != null && !isLocation(data.location)) throw new Error('Unknown location.')
+    const targetName = String(data.targetName ?? '').trim().slice(0, 80) || DEFAULT_TARGET_NAME
+
+    return {
+      description,
+      glitchId,
+      bounty: {
+        targetName,
+        threat,
+        location: data.location ?? ('central_nexus' as const),
+        kind: 'ANOMALY' as const,
+        reward: defaultReward(threat, 'ANOMALY'),
+      },
+    }
   })
   .handler(async ({ data }): Promise<{ glitchId: number }> => {
     // Reporter always comes from the session, never from the client.
@@ -84,7 +115,7 @@ export const reportEcho = createServerFn({ method: 'POST' })
       if (glitchId === undefined) {
         glitchId = tx
           .insert(glitches)
-          .values({ description: data.description, location: data.location, timestamp })
+          .values({ description: data.description, timestamp, ...data.bounty })
           .returning({ glitchId: glitches.glitchId })
           .get().glitchId
       } else {
@@ -116,10 +147,8 @@ export const updateGlitchStatus = createServerFn({ method: 'POST' })
   })
   .handler(async ({ data }) => {
     requireCommander()
-    db.update(glitches)
-      .set({ status: data.status })
-      .where(eq(glitches.glitchId, data.glitchId))
-      .run()
+    // Also sets or clears resolvedAt, so bounty rewards stay correct.
+    setBountyStatus(data.glitchId, data.status)
   })
 
 export const deleteGlitch = createServerFn({ method: 'POST' })

@@ -27,23 +27,44 @@ const CRACKS: { below: number; paths: string[] }[] = [
   },
 ]
 
-/** The magic orb: dims, cracks and flickers as the level (0-100) drops. */
+/** Mint when calm, red when the danger (0-1) is high. */
+function glowColor(danger: number) {
+  const mix = (from: number, to: number) => Math.round(from + (to - from) * danger)
+  return `${mix(111, 255)} ${mix(224, 42)} ${mix(200, 60)}`
+}
+
+/**
+ * The orb: dims, cracks and flickers as the level (0-100) drops.
+ * It also turns red with the danger (100 - level); from 50% danger it sounds
+ * the alarm with a spinning beacon and ripples.
+ */
 export function MagicOrb({ level, className = '' }: { level: number; className?: string }) {
   const ratio = Math.max(0, Math.min(100, level)) / 100
-  const brightness = 0.45 + 0.6 * ratio
-  const saturation = 0.25 + 0.8 * ratio
-  const glowSize = 8 + 44 * ratio
-  const glowAlpha = 0.12 + 0.55 * ratio
+  const danger = 1 - ratio
+  const alarm = danger >= 0.5
+  // Stays brighter than before so the red reads even on a cracked orb.
+  const brightness = 0.7 + 0.35 * ratio
+  const saturation = 0.6 + 0.45 * ratio
+  const glowSize = alarm ? 36 : 8 + 44 * ratio
+  const glowAlpha = alarm ? 0.75 : 0.12 + 0.55 * ratio
+  const glow = glowColor(danger)
 
   return (
-    <div className={`orb-pulse aspect-square ${className}`} aria-hidden="true">
+    <div className={`orb-pulse relative aspect-square ${className}`} aria-hidden="true">
+      {/* Alarm ripples spread outward behind the orb. */}
+      {alarm && (
+        <>
+          <span className="orb-alarm-ripple absolute inset-0 rounded-full border-4 border-red-500" />
+          <span className="orb-alarm-ripple-late absolute inset-0 rounded-full border-4 border-red-500" />
+        </>
+      )}
       <div
         className={`relative size-full overflow-hidden rounded-full transition-[filter,box-shadow] duration-1000 ease-out ${
           level < 25 ? 'orb-flicker' : ''
         }`}
         style={{
           filter: `brightness(${brightness}) saturate(${saturation})`,
-          boxShadow: `0 0 ${glowSize}px ${glowSize / 4}px rgb(111 224 200 / ${glowAlpha})`,
+          boxShadow: `0 0 ${glowSize}px ${glowSize / 4}px rgb(${glow} / ${glowAlpha})`,
         }}
       >
         {/* The picture has a dark square around the orb; zoom in so the circle crops it away. */}
@@ -53,6 +74,23 @@ export function MagicOrb({ level, className = '' }: { level: number; className?:
           draggable={false}
           className="size-full scale-[1.5] object-cover select-none"
         />
+        {/* Red tint, stronger with more danger; it flashes during an alarm. */}
+        <div
+          className={`absolute inset-0 bg-[#ff2a3c] mix-blend-color transition-opacity duration-1000 ${
+            alarm ? 'orb-alarm-flash' : ''
+          }`}
+          style={{ opacity: danger * 0.85, ['--orb-red' as string]: danger * 0.85 }}
+        />
+        {/* Rotating beacon light, like a police siren. */}
+        {alarm && (
+          <div
+            className="orb-alarm-spin absolute -inset-1/4 mix-blend-screen"
+            style={{
+              background:
+                'conic-gradient(from 0deg, transparent 0deg, rgb(255 80 90 / .75) 25deg, transparent 60deg, transparent 180deg, rgb(255 80 90 / .75) 205deg, transparent 240deg)',
+            }}
+          />
+        )}
         <svg viewBox="0 0 100 100" className="absolute inset-0 size-full" fill="none">
           {CRACKS.map((tier) => (
             <g

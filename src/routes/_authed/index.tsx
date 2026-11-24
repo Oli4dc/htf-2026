@@ -20,20 +20,20 @@ function DashboardPage() {
     <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
       {/* Right column on desktop; first on phones. */}
       <div className="flex flex-col gap-6 lg:order-last">
-        <MagicPanel level={magicLevel} />
+        <MagicPanel level={magicLevel} captured={glitches.length - open} total={glitches.length} />
         <Link
           to="/report"
           className="flex w-full items-center justify-center rounded-xl bg-copper px-6 py-5 text-2xl font-bold text-copper-ink shadow-lg shadow-black/30 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mint"
         >
-          Report echo
+          Report criminal
         </Link>
       </div>
 
       <section className="flex flex-col gap-4 rounded-2xl border border-line bg-panel p-4 sm:p-6 lg:col-span-2 lg:max-h-[calc(100vh-9.5rem)]">
         <header className="flex items-baseline justify-between gap-4">
-          <h1 className="font-heading text-4xl leading-none text-fg">Glitches</h1>
+          <h1 className="font-heading text-4xl leading-none text-fg">Fugitives</h1>
           <p className="text-base text-muted">
-            {open} open · {glitches.length} on record
+            {open} on the loose · {glitches.length - open} captured
           </p>
         </header>
         <div className="min-h-0 lg:overflow-y-auto lg:pr-1">

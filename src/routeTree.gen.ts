@@ -13,7 +13,10 @@ import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedBoardRouteImport } from './routes/_authed/board'
+import { Route as AuthedBountiesRouteImport } from './routes/_authed/bounties'
+import { Route as AuthedLeaderboardRouteImport } from './routes/_authed/leaderboard'
 import { Route as AuthedReportRouteImport } from './routes/_authed/report'
+import { Route as AuthedRouletteRouteImport } from './routes/_authed/roulette'
 import { Route as AuthedGlitchesGlitchIdRouteImport } from './routes/_authed/glitches/$glitchId'
 import { Route as ApiRobloxStateRouteImport } from './routes/api/roblox/state'
 
@@ -36,9 +39,24 @@ const AuthedBoardRoute = AuthedBoardRouteImport.update({
   path: '/board',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedBountiesRoute = AuthedBountiesRouteImport.update({
+  id: '/bounties',
+  path: '/bounties',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedLeaderboardRoute = AuthedLeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedReportRoute = AuthedReportRouteImport.update({
   id: '/report',
   path: '/report',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedRouletteRoute = AuthedRouletteRouteImport.update({
+  id: '/roulette',
+  path: '/roulette',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedGlitchesGlitchIdRoute = AuthedGlitchesGlitchIdRouteImport.update({
@@ -56,14 +74,20 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
   '/board': typeof AuthedBoardRoute
+  '/bounties': typeof AuthedBountiesRoute
+  '/leaderboard': typeof AuthedLeaderboardRoute
   '/report': typeof AuthedReportRoute
+  '/roulette': typeof AuthedRouletteRoute
   '/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
   '/api/roblox/state': typeof ApiRobloxStateRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/board': typeof AuthedBoardRoute
+  '/bounties': typeof AuthedBountiesRoute
+  '/leaderboard': typeof AuthedLeaderboardRoute
   '/report': typeof AuthedReportRoute
+  '/roulette': typeof AuthedRouletteRoute
   '/': typeof AuthedIndexRoute
   '/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
   '/api/roblox/state': typeof ApiRobloxStateRoute
@@ -73,7 +97,10 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authed/board': typeof AuthedBoardRoute
+  '/_authed/bounties': typeof AuthedBountiesRoute
+  '/_authed/leaderboard': typeof AuthedLeaderboardRoute
   '/_authed/report': typeof AuthedReportRoute
+  '/_authed/roulette': typeof AuthedRouletteRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/glitches/$glitchId': typeof AuthedGlitchesGlitchIdRoute
   '/api/roblox/state': typeof ApiRobloxStateRoute
@@ -84,14 +111,20 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/board'
+    | '/bounties'
+    | '/leaderboard'
     | '/report'
+    | '/roulette'
     | '/glitches/$glitchId'
     | '/api/roblox/state'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/board'
+    | '/bounties'
+    | '/leaderboard'
     | '/report'
+    | '/roulette'
     | '/'
     | '/glitches/$glitchId'
     | '/api/roblox/state'
@@ -100,7 +133,10 @@ export interface FileRouteTypes {
     | '/_authed'
     | '/login'
     | '/_authed/board'
+    | '/_authed/bounties'
+    | '/_authed/leaderboard'
     | '/_authed/report'
+    | '/_authed/roulette'
     | '/_authed/'
     | '/_authed/glitches/$glitchId'
     | '/api/roblox/state'
@@ -142,11 +178,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedBoardRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/bounties': {
+      id: '/_authed/bounties'
+      path: '/bounties'
+      fullPath: '/bounties'
+      preLoaderRoute: typeof AuthedBountiesRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/leaderboard': {
+      id: '/_authed/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof AuthedLeaderboardRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/report': {
       id: '/_authed/report'
       path: '/report'
       fullPath: '/report'
       preLoaderRoute: typeof AuthedReportRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/roulette': {
+      id: '/_authed/roulette'
+      path: '/roulette'
+      fullPath: '/roulette'
+      preLoaderRoute: typeof AuthedRouletteRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/glitches/$glitchId': {
@@ -168,14 +225,20 @@ declare module '@tanstack/react-router' {
 
 interface AuthedRouteChildren {
   AuthedBoardRoute: typeof AuthedBoardRoute
+  AuthedBountiesRoute: typeof AuthedBountiesRoute
+  AuthedLeaderboardRoute: typeof AuthedLeaderboardRoute
   AuthedReportRoute: typeof AuthedReportRoute
+  AuthedRouletteRoute: typeof AuthedRouletteRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedGlitchesGlitchIdRoute: typeof AuthedGlitchesGlitchIdRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedBoardRoute: AuthedBoardRoute,
+  AuthedBountiesRoute: AuthedBountiesRoute,
+  AuthedLeaderboardRoute: AuthedLeaderboardRoute,
   AuthedReportRoute: AuthedReportRoute,
+  AuthedRouletteRoute: AuthedRouletteRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedGlitchesGlitchIdRoute: AuthedGlitchesGlitchIdRoute,
 }

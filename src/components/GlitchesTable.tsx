@@ -16,7 +16,7 @@ export function GlitchesTable({
   if (glitches.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-line px-6 py-12 text-center text-lg text-muted">
-        All quiet in Achrona. No glitches on record.
+        All quiet in Achrona. Nobody has escaped the Time Prison.
       </p>
     )
   }
@@ -33,7 +33,12 @@ export function GlitchesTable({
             params={{ glitchId: String(glitch.glitchId) }}
             className="flex min-w-0 flex-1 flex-col gap-0.5"
           >
-            <span className="text-xl font-semibold text-fg">{formatGlitchId(glitch.glitchId)}</span>
+            <span className="text-xl font-semibold text-fg">
+              {glitch.targetName}{' '}
+              <span className="font-mono text-sm font-normal text-muted">
+                {formatGlitchId(glitch.glitchId)}
+              </span>
+            </span>
             <span className="text-base text-muted">{glitch.description}</span>
             <span className="mt-0.5 inline-flex items-center gap-1 text-sm text-accent">
               <MapPin className="size-3.5" />
@@ -44,7 +49,7 @@ export function GlitchesTable({
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:flex-nowrap sm:justify-end">
             <span
               className="inline-flex items-center gap-1.5 text-base text-muted"
-              title={`${glitch.echoCount} echoes`}
+              title={`${glitch.echoCount} sightings`}
             >
               <MessageSquare className="size-4" />
               {glitch.echoCount}
@@ -54,7 +59,7 @@ export function GlitchesTable({
               short
               className="text-base whitespace-nowrap text-muted sm:w-20 sm:text-right"
             />
-            <StatusPill status={glitch.status} />
+            <StatusPill status={glitch.status} objective={glitch.objective} />
             {isCommander && <GlitchActions glitchId={glitch.glitchId} status={glitch.status} />}
           </div>
         </li>

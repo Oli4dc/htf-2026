@@ -58,11 +58,11 @@ function BoardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-heading text-4xl text-fg sm:text-5xl">Glitch board</h1>
+        <h1 className="font-heading text-4xl text-fg sm:text-5xl">Hunt board</h1>
         <p className="mt-1 text-muted">
           {isCommander
-            ? 'Drag a glitch to another column, or use the arrows, to move it through containment.'
-            : 'How every glitch is progressing. Only commanders can move them.'}
+            ? 'Drag a fugitive to another column, or use the arrows, to move the hunt along.'
+            : 'How the hunt for every fugitive is going. Only commanders can move them.'}
         </p>
       </div>
 
@@ -157,7 +157,10 @@ function BoardCard({
         className="flex flex-col gap-1"
       >
         <span className="text-lg font-semibold text-fg">
-          {formatGlitchId(glitch.glitchId)}
+          {glitch.targetName}{' '}
+          <span className="font-mono text-xs font-normal text-muted">
+            {formatGlitchId(glitch.glitchId)}
+          </span>
         </span>
         <span className="text-base text-muted">{glitch.description}</span>
       </Link>
