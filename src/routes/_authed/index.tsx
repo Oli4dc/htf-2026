@@ -1,51 +1,45 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { RadioTower } from 'lucide-react'
 import { GlitchesTable } from '#/components/GlitchesTable.tsx'
-import { StatusBadge, statusMeta } from '#/components/StatusBadge.tsx'
-import { Card } from '#/components/ui/Card.tsx'
-import { getGlitches } from '#/lib/glitches.functions.ts'
-import { GLITCH_STATUSES } from '#/lib/glitch.ts'
+import { MagicPanel } from '#/components/MagicPanel.tsx'
+import { getGlitches, getMagicLevel } from '#/lib/glitches.functions.ts'
 
 export const Route = createFileRoute('/_authed/')({
-  loader: () => getGlitches(),
-  component: OverviewPage,
+  loader: async () => {
+    const [glitches, magicLevel] = await Promise.all([getGlitches(), getMagicLevel()])
+    return { glitches, magicLevel }
+  },
+  component: DashboardPage,
 })
 
-function OverviewPage() {
-  const glitches = Route.useLoaderData()
+function DashboardPage() {
+  const { glitches, magicLevel } = Route.useLoaderData()
   const { guardian } = Route.useRouteContext()
+  const open = glitches.filter((g) => g.status !== 'FIXED').length
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-fg">Overview</h1>
-          <p className="mt-1 text-muted">
-            Every echo from the field, newest first. Hold the line against The Desync.
-          </p>
-        </div>
+    <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
+      {/* Right column on desktop; first on phones. */}
+      <div className="flex flex-col gap-6 lg:order-last">
+        <MagicPanel level={magicLevel} />
         <Link
           to="/report"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-br from-accent-from to-accent-to px-5 py-3 font-medium text-white shadow-md shadow-glow transition hover:brightness-110"
+          className="flex w-full items-center justify-center rounded-xl bg-copper px-6 py-5 text-2xl font-bold text-copper-ink shadow-lg shadow-black/30 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mint"
         >
-          <RadioTower className="size-5" />
           Report echo
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {GLITCH_STATUSES.map((status) => (
-          <Card key={status} className="flex flex-col gap-3 p-4 sm:p-5">
-            <StatusBadge status={status} />
-            <p className="text-3xl font-semibold text-fg">
-              {glitches.filter((g) => g.status === status).length}
-            </p>
-            <p className="text-sm text-muted">{statusMeta[status].hint}</p>
-          </Card>
-        ))}
-      </div>
-
-      <GlitchesTable glitches={glitches} isCommander={guardian.role === 'commander'} />
+      <section className="flex flex-col gap-4 rounded-2xl border border-line bg-panel p-4 sm:p-6 lg:col-span-2 lg:max-h-[calc(100vh-9.5rem)]">
+        <header className="flex items-baseline justify-between gap-4">
+          <h1 className="font-heading text-4xl leading-none text-fg">Glitches</h1>
+          <p className="text-base text-muted">
+            {open} open · {glitches.length} on record
+          </p>
+        </header>
+        <div className="min-h-0 lg:overflow-y-auto lg:pr-1">
+          <GlitchesTable glitches={glitches} isCommander={guardian.role === 'commander'} />
+        </div>
+      </section>
     </div>
   )
 }

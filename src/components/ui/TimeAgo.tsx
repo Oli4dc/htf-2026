@@ -24,12 +24,29 @@ export function formatRelative(iso: string) {
   return 'just now'
 }
 
-/** "12 minutes ago", with the exact time on hover. */
-export function TimeAgo({ iso, className = '' }: { iso: string; className?: string }) {
+/** Compact form: "2m ago", "3h ago", "4d ago". */
+export function formatRelativeShort(iso: string) {
+  const seconds = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000)
+  if (seconds < 60) return 'just now'
+  if (seconds < 3_600) return `${Math.floor(seconds / 60)}m ago`
+  if (seconds < 86_400) return `${Math.floor(seconds / 3_600)}h ago`
+  return `${Math.floor(seconds / 86_400)}d ago`
+}
+
+/** "12 minutes ago" (or "12m ago" with `short`), with the exact time on hover. */
+export function TimeAgo({
+  iso,
+  short = false,
+  className = '',
+}: {
+  iso: string
+  short?: boolean
+  className?: string
+}) {
   return (
     // Server and browser clocks/time zones differ; the browser's wins.
     <time dateTime={iso} title={formatAbsolute(iso)} className={className} suppressHydrationWarning>
-      {formatRelative(iso)}
+      {short ? formatRelativeShort(iso) : formatRelative(iso)}
     </time>
   )
 }

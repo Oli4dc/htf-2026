@@ -39,3 +39,17 @@ export function formatGlitchId(glitchId: number) {
 }
 
 export const ECHO_MAX_LENGTH = 1000
+
+/** Magic drained from Achrona by one glitch in each status. */
+export const MAGIC_COST: Record<GlitchStatus, number> = {
+  LEAKED: 12,
+  ASSESSING: 8,
+  CONTAINING: 4,
+  FIXED: 0,
+}
+
+/** 100 when nothing is open, never below 0. */
+export function computeMagicLevel(statuses: GlitchStatus[]) {
+  const drained = statuses.reduce((sum, status) => sum + MAGIC_COST[status], 0)
+  return Math.max(0, 100 - drained)
+}

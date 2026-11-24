@@ -46,7 +46,7 @@ export function GlitchActions({
             updateStatus({ data: { glitchId, status: e.target.value as GlitchStatus } }),
           )
         }
-        className="rounded-lg border border-line bg-white px-2 py-1.5 text-sm text-fg transition-colors hover:border-accent/40 focus:border-accent focus:outline-none disabled:opacity-50"
+        className="rounded-lg border border-line bg-card px-2 py-1.5 text-sm text-fg transition-colors hover:border-accent/40 focus:border-accent focus:outline-none disabled:opacity-50"
       >
         {GLITCH_STATUSES.map((s) => (
           <option key={s} value={s}>

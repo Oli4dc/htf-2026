@@ -6,6 +6,7 @@ import { echoes, glitches, guardians } from '#/db/schema.ts'
 import { requireCommander, requireGuardian } from '#/lib/auth.server.ts'
 import {
   ECHO_MAX_LENGTH,
+  computeMagicLevel,
   isGlitchStatus,
   type GlitchDetail,
   type GlitchStatus,
@@ -122,3 +123,10 @@ export const deleteGlitch = createServerFn({ method: 'POST' })
     // Echoes go with it (ON DELETE CASCADE).
     db.delete(glitches).where(eq(glitches.glitchId, glitchId)).run()
   })
+
+/** Magic level of Achrona in percent, computed on the server. */
+export const getMagicLevel = createServerFn({ method: 'GET' }).handler(async (): Promise<number> => {
+  requireGuardian()
+  const rows = db.select({ status: glitches.status }).from(glitches).all()
+  return computeMagicLevel(rows.map((row) => row.status))
+})

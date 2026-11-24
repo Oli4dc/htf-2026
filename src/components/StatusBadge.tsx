@@ -30,6 +30,25 @@ export const statusMeta: Record<
   },
 }
 
+// Solid pills of the night theme; white text passes contrast on each colour.
+const pillColor: Record<GlitchStatus, string> = {
+  LEAKED: 'bg-[#c4203a]',
+  ASSESSING: 'bg-[#c2620f]',
+  CONTAINING: 'bg-[#0e86ad]',
+  FIXED: 'bg-[#1a8f3e]',
+}
+
+/** Solid uppercase pill, e.g. LEAKED in red. */
+export function StatusPill({ status }: { status: GlitchStatus }) {
+  return (
+    <span
+      className={`inline-flex min-w-28 justify-center rounded-full px-3 py-1.5 text-sm font-bold tracking-wide whitespace-nowrap text-white uppercase ${pillColor[status]}`}
+    >
+      {status}
+    </span>
+  )
+}
+
 export function StatusBadge({ status }: { status: GlitchStatus }) {
   const meta = statusMeta[status]
   return (
