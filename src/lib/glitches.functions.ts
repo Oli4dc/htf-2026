@@ -176,6 +176,6 @@ export const deleteGlitch = createServerFn({ method: 'POST' })
 /** Magic level of Achrona in percent, computed on the server. */
 export const getMagicLevel = createServerFn({ method: 'GET' }).handler(async (): Promise<number> => {
   requireGuardian()
-  const rows = db.select({ status: glitches.status }).from(glitches).all()
-  return computeMagicLevel(rows.map((row) => row.status))
+  const rows = db.select({ status: glitches.status, location: glitches.location }).from(glitches).all()
+  return computeMagicLevel(rows)
 })

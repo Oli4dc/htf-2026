@@ -72,11 +72,23 @@ export function formatGlitchId(glitchId: number) {
 export const ECHO_MAX_LENGTH = 1000
 
 /**
- * Magic returns as fugitives go back to the Time Prison:
- * the share of fugitives captured (FIXED), in percent. 100 when nobody escaped.
+ * Open bounties that count towards the danger per area: one slot, so an area with any open bounty
+ * counts as hit and more bounties there add nothing. The Roblox map also shows one incident per island.
  */
-export function computeMagicLevel(statuses: GlitchStatus[]) {
-  if (statuses.length === 0) return 100
-  const captured = statuses.filter((status) => status === 'FIXED').length
-  return Math.round((captured / statuses.length) * 100)
+export const MAX_INCIDENTS_PER_AREA = 1
+
+/**
+ * Magic level in percent (danger = 100 - magic). Each area fills at most MAX_INCIDENTS_PER_AREA slots,
+ * so danger is the share of areas in trouble: one bounty is one area of six, not 100% danger, and
+ * 100% danger means every area has an open bounty. 100 when nothing is open.
+ */
+export function computeMagicLevel(bounties: { status: GlitchStatus; location: GlitchLocation }[]) {
+  const open = new Map<GlitchLocation, number>()
+  for (const { status, location } of bounties) {
+    if (status !== 'FIXED') open.set(location, (open.get(location) ?? 0) + 1)
+  }
+  let filled = 0
+  for (const total of open.values()) filled += Math.min(total, MAX_INCIDENTS_PER_AREA)
+  const capacity = GLITCH_LOCATIONS.length * MAX_INCIDENTS_PER_AREA
+  return Math.round(100 - (filled / capacity) * 100)
 }

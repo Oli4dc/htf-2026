@@ -6,6 +6,7 @@ import {
   mapEventFor,
   travelProgress,
   travelState,
+  type BountyKind,
   type MapEventType,
   type TravelState,
 } from '#/lib/bounty.ts'
@@ -19,7 +20,7 @@ import {
 type PerArea = Record<GlitchLocation, number>
 
 export type GridState = {
-  /** Integer 0-100: the level behind the dashboard orb (share of fugitives captured). */
+  /** Integer 0-100: the level behind the dashboard orb (see computeMagicLevel). */
   magic: number
   /** Integer 0-100: the "Danger level" the dashboard shows, always 100 - magic. */
   danger: number
@@ -41,6 +42,8 @@ export type MapEvent = {
   id: number
   area: GlitchLocation
   type: MapEventType
+  /** FUGITIVE or ANOMALY: the effect comes from the report's words, so the map needs the kind too. */
+  kind: BountyKind
   threat: number
 }
 
@@ -73,17 +76,17 @@ export function getGridState(): GridState {
 
   const areas = emptyAreas()
   const threat = emptyAreas()
-  const statuses: GlitchStatus[] = []
+  const bounties: { status: GlitchStatus; location: GlitchLocation }[] = []
   for (const row of rows) {
     if (row.status !== 'FIXED') {
       areas[row.location] += row.total
       threat[row.location] = Math.max(threat[row.location], row.topThreat ?? 0)
     }
-    for (let i = 0; i < row.total; i++) statuses.push(row.status)
+    for (let i = 0; i < row.total; i++) bounties.push({ status: row.status, location: row.location })
   }
 
   // Same calculation as the dashboard, so both always show the same number.
-  const magic = Math.round(computeMagicLevel(statuses))
+  const magic = Math.round(computeMagicLevel(bounties))
 
   // Inner join skips unclaimed bounties; claimed_by_guardian_id is indexed, so this stays cheap at a 2 s poll.
   const now = Date.now()
@@ -122,6 +125,7 @@ export function getGridState(): GridState {
     // "fire" in the title gives a fire, "crash" a crash, and so on (word lists in bounty.ts).
     .map(({ kind, targetName, description, ...event }) => ({
       ...event,
+      kind,
       type: mapEventFor({ kind, targetName, description }),
     }))
 
