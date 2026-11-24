@@ -4,7 +4,7 @@ import { useServerFn } from '@tanstack/react-start'
 import { Plus } from 'lucide-react'
 import { postBounty } from '#/lib/bounties.functions.ts'
 import {
-  LOCATIONS,
+  BOUNTY_LOCATIONS,
   LOCATION_LABELS,
   MAX_THREAT,
   defaultReward,
@@ -100,7 +100,7 @@ export function PostBountyForm({ onDone }: { onDone: () => void }) {
           onChange={(e) => setLocation(e.target.value as Location)}
           className={field}
         >
-          {LOCATIONS.map((l) => (
+          {BOUNTY_LOCATIONS.map((l) => (
             <option key={l} value={l}>
               {LOCATION_LABELS[l]}
             </option>

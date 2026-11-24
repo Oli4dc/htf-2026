@@ -17,6 +17,8 @@ export type BountyKind = (typeof BOUNTY_KINDS)[number]
 export const LOCATIONS = GLITCH_LOCATIONS
 export type Location = GlitchLocation
 export const LOCATION_LABELS = locationLabel
+/** Locations offered when posting a bounty or reporting a sighting: everywhere but the Citadel (hunters' base). */
+export { BOUNTY_LOCATIONS, isBountyLocation, type BountyLocation } from './glitch.ts'
 
 export const MIN_THREAT = 1
 export const MAX_THREAT = 5

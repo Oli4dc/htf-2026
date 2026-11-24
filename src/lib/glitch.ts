@@ -36,6 +36,19 @@ export function isGlitchLocation(value: unknown): value is GlitchLocation {
   return GLITCH_LOCATIONS.includes(value as GlitchLocation)
 }
 
+/**
+ * Where trouble can be reported or posted: every area except the Citadel, the hunters' base where every
+ * hunt starts. The Citadel stays in GLITCH_LOCATIONS for old rows and the map.
+ */
+export const BOUNTY_LOCATIONS = GLITCH_LOCATIONS.filter(
+  (location): location is Exclude<GlitchLocation, 'citadel'> => location !== 'citadel',
+)
+export type BountyLocation = (typeof BOUNTY_LOCATIONS)[number]
+
+export function isBountyLocation(value: unknown): value is BountyLocation {
+  return BOUNTY_LOCATIONS.includes(value as BountyLocation)
+}
+
 export type Glitch = {
   glitchId: number
   status: GlitchStatus
@@ -79,16 +92,17 @@ export const MAX_INCIDENTS_PER_AREA = 1
 
 /**
  * Magic level in percent (danger = 100 - magic). Each area fills at most MAX_INCIDENTS_PER_AREA slots,
- * so danger is the share of areas in trouble: one bounty is one area of six, not 100% danger, and
- * 100% danger means every area has an open bounty. 100 when nothing is open.
+ * so danger is the share of areas in trouble: one bounty is one area of five (the Citadel is the hunters'
+ * base, see BOUNTY_LOCATIONS), not 100% danger, and 100% danger means every area has an open bounty. 100 when nothing is open.
  */
 export function computeMagicLevel(bounties: { status: GlitchStatus; location: GlitchLocation }[]) {
   const open = new Map<GlitchLocation, number>()
   for (const { status, location } of bounties) {
-    if (status !== 'FIXED') open.set(location, (open.get(location) ?? 0) + 1)
+    // Old bounties at the Citadel (hunters' base) don't count: it isn't one of the areas at risk.
+    if (status !== 'FIXED' && isBountyLocation(location)) open.set(location, (open.get(location) ?? 0) + 1)
   }
   let filled = 0
   for (const total of open.values()) filled += Math.min(total, MAX_INCIDENTS_PER_AREA)
-  const capacity = GLITCH_LOCATIONS.length * MAX_INCIDENTS_PER_AREA
+  const capacity = BOUNTY_LOCATIONS.length * MAX_INCIDENTS_PER_AREA
   return Math.round(100 - (filled / capacity) * 100)
 }

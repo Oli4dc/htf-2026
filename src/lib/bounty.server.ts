@@ -1,7 +1,7 @@
 // Server-only bounty helpers. Call them inside server function handlers.
-import { and, asc, eq, isNotNull, isNull, ne, sql } from 'drizzle-orm'
+import { and, asc, count, desc, eq, isNotNull, isNull, ne, sql } from 'drizzle-orm'
 import { db } from '#/db/index.ts'
-import { glitches, rouletteSpins } from '#/db/schema.ts'
+import { glitches, guardians, rouletteSpins } from '#/db/schema.ts'
 import { FINAL_STATUS } from '#/lib/bounty.ts'
 import type { GlitchStatus } from '#/lib/glitch.ts'
 
@@ -88,6 +88,30 @@ export function balanceFor(guardianId: number, tx: Tx | typeof db = db) {
     .where(eq(rouletteSpins.guardianId, guardianId))
     .get()
   return Number(earned?.shards ?? 0) + Number(gambled?.net ?? 0)
+}
+
+/**
+ * Every hunter ranked by shards earned (rewards of resolved bounties they claimed), then captures, then name.
+ * One query for the dashboard's "Strongest hunters" and the Roblox map's leaderboard, so they always agree.
+ */
+export function hunterStandings() {
+  return db
+    .select({
+      guardianId: guardians.guardianId,
+      codename: guardians.codename,
+      shards: sql<number>`coalesce(sum(${glitches.reward}), 0)`,
+      captures: count(glitches.glitchId),
+      topThreat: sql<number>`coalesce(max(${glitches.threat}), 0)`,
+    })
+    .from(guardians)
+    .leftJoin(
+      glitches,
+      and(eq(glitches.claimedByGuardianId, guardians.guardianId), isNotNull(glitches.resolvedAt)),
+    )
+    .where(eq(guardians.role, 'defender'))
+    .groupBy(guardians.guardianId)
+    .orderBy(desc(sql`coalesce(sum(${glitches.reward}), 0)`), desc(count(glitches.glitchId)), asc(guardians.codename))
+    .all()
 }
 
 /** Shards earned by one hunter: rewards of the resolved bounties they claimed. */

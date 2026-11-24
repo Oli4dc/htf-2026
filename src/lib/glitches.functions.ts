@@ -11,7 +11,7 @@ import {
   MIN_THREAT,
   defaultDescription,
   defaultReward,
-  isLocation,
+  isBountyLocation,
   kindFromText,
   type Location,
 } from '#/lib/bounty.ts'
@@ -96,7 +96,9 @@ export const reportEcho = createServerFn({ method: 'POST' })
     if (!Number.isInteger(threat) || threat < MIN_THREAT || threat > MAX_THREAT) {
       throw new Error(`Threat must be from ${MIN_THREAT} to ${MAX_THREAT}.`)
     }
-    if (data.location != null && !isLocation(data.location)) throw new Error('Unknown location.')
+    if (data.location != null && !isBountyLocation(data.location)) {
+      throw new Error('Pick an area other than the Citadel.')
+    }
     const targetName = typedName || DEFAULT_TARGET_NAME
     const location = data.location ?? ('central_nexus' as const)
     const description = typed || defaultDescription(targetName, location)

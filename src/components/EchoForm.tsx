@@ -4,7 +4,7 @@ import { Send } from 'lucide-react'
 import { Shards } from '#/components/bounty/Shards.tsx'
 import { reportEcho } from '#/lib/glitches.functions.ts'
 import {
-  LOCATIONS,
+  BOUNTY_LOCATIONS,
   LOCATION_LABELS,
   MAP_EVENT_LABELS,
   MAX_THREAT,
@@ -104,7 +104,7 @@ export function EchoForm({
               onChange={(e) => setLocation(e.target.value as Location)}
               className={field}
             >
-              {LOCATIONS.map((l) => (
+              {BOUNTY_LOCATIONS.map((l) => (
                 <option key={l} value={l}>
                   {LOCATION_LABELS[l]}
                 </option>

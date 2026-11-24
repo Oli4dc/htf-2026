@@ -2,6 +2,7 @@ import { timingSafeEqual } from 'node:crypto'
 import { count, eq, max, ne } from 'drizzle-orm'
 import { db } from '#/db/index.ts'
 import { glitches, guardians } from '#/db/schema.ts'
+import { hunterStandings } from '#/lib/bounty.server.ts'
 import {
   mapEventFor,
   travelProgress,
@@ -32,6 +33,18 @@ export type GridState = {
   hunts: Hunt[]
   /** One visible incident per open bounty; the Roblox map stacks them on the area's island. */
   events: MapEvent[]
+  /** Top hunters by shards earned, same ranking as the dashboard's "Strongest hunters". */
+  leaderboard: LeaderboardRow[]
+}
+
+/** How many hunters the map's leaderboard shows. */
+export const MAP_LEADERBOARD_SIZE = 5
+
+export type LeaderboardRow = {
+  /** Lets a Roblox player who joined as this hunter spot their own row. */
+  guardianId: number
+  hunter: string
+  shards: number
 }
 
 /** Incident shown on the map for a loose bounty. Derived from the words of the report, never stored. */
@@ -132,7 +145,11 @@ export function getGridState(): GridState {
       type: mapEventFor({ kind, targetName, description }),
     }))
 
-  return { magic, danger: 100 - magic, areas, threat, hunts, events }
+  const leaderboard: LeaderboardRow[] = hunterStandings()
+    .slice(0, MAP_LEADERBOARD_SIZE)
+    .map((row) => ({ guardianId: row.guardianId, hunter: row.codename, shards: Number(row.shards) }))
+
+  return { magic, danger: 100 - magic, areas, threat, hunts, events, leaderboard }
 }
 
 /** True when `key` matches the GRID_KEY env var. Fails closed when GRID_KEY is not set. */

@@ -1,10 +1,16 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { and, asc, count, desc, eq, isNotNull, ne, sql } from 'drizzle-orm'
+import { and, asc, count, desc, eq, ne, sql } from 'drizzle-orm'
 import { db } from '#/db/index.ts'
 import { echoes, glitches, guardians } from '#/db/schema.ts'
 import { requireCommander, requireGuardian } from '#/lib/auth.server.ts'
-import { balanceFor, claimBountyFor, findActiveHunt, setBountyStatus } from '#/lib/bounty.server.ts'
+import {
+  balanceFor,
+  claimBountyFor,
+  findActiveHunt,
+  hunterStandings,
+  setBountyStatus,
+} from '#/lib/bounty.server.ts'
 import {
   FINAL_STATUS,
   MAX_THREAT,
@@ -12,7 +18,7 @@ import {
   defaultDescription,
   defaultReward,
   isBountyKind,
-  isLocation,
+  isBountyLocation,
   nextStatus,
   rankTitle,
   type Bounty,
@@ -137,26 +143,7 @@ export const getBounty = createServerFn({ method: 'GET' })
 export const getLeaderboard = createServerFn({ method: 'GET' }).handler(
   async (): Promise<HunterRow[]> => {
     requireGuardian()
-    const rows = db
-      .select({
-        guardianId: guardians.guardianId,
-        codename: guardians.codename,
-        shards: sql<number>`coalesce(sum(${glitches.reward}), 0)`,
-        captures: count(glitches.glitchId),
-        topThreat: sql<number>`coalesce(max(${glitches.threat}), 0)`,
-      })
-      .from(guardians)
-      .leftJoin(
-        glitches,
-        and(
-          eq(glitches.claimedByGuardianId, guardians.guardianId),
-          isNotNull(glitches.resolvedAt),
-        ),
-      )
-      .where(eq(guardians.role, 'defender'))
-      .groupBy(guardians.guardianId)
-      .orderBy(desc(sql`coalesce(sum(${glitches.reward}), 0)`), desc(count(glitches.glitchId)), asc(guardians.codename))
-      .all()
+    const rows = hunterStandings()
 
     // Equal shards share a rank (1, 2, 2, 4).
     return rows.map((row, i) => {
@@ -267,7 +254,7 @@ type PostBountyInput = {
 export const postBounty = createServerFn({ method: 'POST' })
   .validator((data: PostBountyInput) => {
     if (!isBountyKind(data.kind)) throw new Error('Unknown kind.')
-    if (!isLocation(data.location)) throw new Error('Unknown location.')
+    if (!isBountyLocation(data.location)) throw new Error('Pick an area other than the Citadel.')
     const threat = parseThreat(data.threat)
     const targetName = parseText(data.targetName, 'Target name', 80)
     const typed = String(data.description ?? '').trim()
