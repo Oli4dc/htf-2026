@@ -31,7 +31,7 @@ export const FINAL_STATUS: GlitchStatus = 'FIXED'
 // Roblox map both derive the travel from claimed_at, so they agree on where the hunter is.
 
 /** Seconds from claiming a bounty to being on site. The Roblox client uses the same number. */
-export const HUNT_TRAVEL_SECONDS = 15
+export const HUNT_TRAVEL_SECONDS = 8
 
 export type TravelState = 'traveling' | 'on_site'
 

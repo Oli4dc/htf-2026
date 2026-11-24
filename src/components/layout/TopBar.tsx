@@ -38,9 +38,6 @@ export function TopBar({ guardian, shards }: { guardian: Guardian; shards: numbe
           <Link to="/bounties" className={navClass} activeProps={{ className: navActiveClass }}>
             Bounties
           </Link>
-          <Link to="/board" className={navClass} activeProps={{ className: navActiveClass }}>
-            Board
-          </Link>
           <Link to="/leaderboard" className={navClass} activeProps={{ className: navActiveClass }}>
             Hunters
           </Link>

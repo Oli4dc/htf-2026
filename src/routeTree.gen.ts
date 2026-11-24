@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
-import { Route as AuthedBoardRouteImport } from './routes/_authed/board'
 import { Route as AuthedBountiesRouteImport } from './routes/_authed/bounties'
 import { Route as AuthedLeaderboardRouteImport } from './routes/_authed/leaderboard'
 import { Route as AuthedReportRouteImport } from './routes/_authed/report'
@@ -32,11 +31,6 @@ const LoginRoute = LoginRouteImport.update({
 const AuthedIndexRoute = AuthedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthedRoute,
-} as any)
-const AuthedBoardRoute = AuthedBoardRouteImport.update({
-  id: '/board',
-  path: '/board',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedBountiesRoute = AuthedBountiesRouteImport.update({
@@ -73,7 +67,6 @@ const ApiRobloxStateRoute = ApiRobloxStateRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
-  '/board': typeof AuthedBoardRoute
   '/bounties': typeof AuthedBountiesRoute
   '/leaderboard': typeof AuthedLeaderboardRoute
   '/report': typeof AuthedReportRoute
@@ -83,7 +76,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/board': typeof AuthedBoardRoute
   '/bounties': typeof AuthedBountiesRoute
   '/leaderboard': typeof AuthedLeaderboardRoute
   '/report': typeof AuthedReportRoute
@@ -96,7 +88,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authed/board': typeof AuthedBoardRoute
   '/_authed/bounties': typeof AuthedBountiesRoute
   '/_authed/leaderboard': typeof AuthedLeaderboardRoute
   '/_authed/report': typeof AuthedReportRoute
@@ -110,7 +101,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
-    | '/board'
     | '/bounties'
     | '/leaderboard'
     | '/report'
@@ -120,7 +110,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
-    | '/board'
     | '/bounties'
     | '/leaderboard'
     | '/report'
@@ -132,7 +121,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authed'
     | '/login'
-    | '/_authed/board'
     | '/_authed/bounties'
     | '/_authed/leaderboard'
     | '/_authed/report'
@@ -169,13 +157,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthedIndexRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/board': {
-      id: '/_authed/board'
-      path: '/board'
-      fullPath: '/board'
-      preLoaderRoute: typeof AuthedBoardRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/bounties': {
@@ -224,7 +205,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedRouteChildren {
-  AuthedBoardRoute: typeof AuthedBoardRoute
   AuthedBountiesRoute: typeof AuthedBountiesRoute
   AuthedLeaderboardRoute: typeof AuthedLeaderboardRoute
   AuthedReportRoute: typeof AuthedReportRoute
@@ -234,7 +214,6 @@ interface AuthedRouteChildren {
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedBoardRoute: AuthedBoardRoute,
   AuthedBountiesRoute: AuthedBountiesRoute,
   AuthedLeaderboardRoute: AuthedLeaderboardRoute,
   AuthedReportRoute: AuthedReportRoute,
