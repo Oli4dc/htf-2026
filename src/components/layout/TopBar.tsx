@@ -3,7 +3,7 @@ import { useServerFn } from '@tanstack/react-start'
 import { Hexagon, LogOut } from 'lucide-react'
 import { Shards } from '#/components/bounty/Shards.tsx'
 import { logout } from '#/lib/auth.functions.ts'
-import type { Guardian } from '#/lib/guardian.ts'
+import { roleLabel, type Guardian } from '#/lib/guardian.ts'
 
 const navClass =
   'rounded-lg px-3 py-2 text-base font-medium text-muted transition-colors hover:bg-subtle hover:text-fg'
@@ -68,7 +68,7 @@ export function TopBar({ guardian, shards }: { guardian: Guardian; shards: numbe
               : 'border-cyan bg-cyan/10 text-cyan'
           }`}
         >
-          {guardian.role}
+          {roleLabel(guardian.role)}
         </span>
         <button
           type="button"

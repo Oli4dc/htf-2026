@@ -109,7 +109,8 @@ function LoginPage() {
         {/* Demo hint for judges; remove before going "live". */}
         <p className="mt-6 text-center text-base text-muted">
           Demo: <span className="text-fg">Warden</span> (commander),{' '}
-          <span className="text-fg">Ember</span> or <span className="text-fg">Nyx</span> (defenders) ·
+          <span className="text-fg">Ember</span>, <span className="text-fg">Nyx</span> or{' '}
+          <span className="text-fg">Rook</span> (hunters) ·
           password <span className="font-mono text-fg">achrona</span>
         </p>
       </div>

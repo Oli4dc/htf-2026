@@ -16,7 +16,7 @@ import {
 import { MAX_THREAT, huntLabel, nextStatus, type BountyDetail } from '#/lib/bounty.ts'
 import { GLITCH_STATUSES, formatGlitchId, type GlitchStatus } from '#/lib/glitch.ts'
 import { deleteGlitch } from '#/lib/glitches.functions.ts'
-import type { Guardian } from '#/lib/guardian.ts'
+import { roleLabel, type Guardian } from '#/lib/guardian.ts'
 
 export const Route = createFileRoute('/_authed/glitches/$glitchId')({
   loader: ({ params }) => getBounty({ data: Number(params.glitchId) }),
@@ -70,7 +70,7 @@ function BountyPage() {
                     <RoleIcon className="size-4 text-accent" />
                     {sighting.guardian.codename}
                   </span>
-                  <span className="text-muted capitalize">· {sighting.guardian.role}</span>
+                  <span className="text-muted">· {roleLabel(sighting.guardian.role)}</span>
                   <span className="text-muted">·</span>
                   <TimeAgo iso={sighting.timestamp} className="text-muted" />
                   {i === 0 && (
